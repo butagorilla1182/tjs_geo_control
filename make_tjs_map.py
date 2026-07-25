@@ -7,7 +7,7 @@ parts.append("<meta name=\"viewport\" content=\"width=device-width, initial-scal
 parts.append("<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\">")
 parts.append("<script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"></script>")
 parts.append("<style>body{margin:0;font-family:sans-serif}.bar{padding:12px;background:#f7f3ea}#map{height:78vh;width:100vw}</style></head><body>")
-parts.append("<div class=\"bar\"><b>TJS GEO Map</b><br>CelesTrak GEO TLEから抽出したTJSの地図表示</div>")
+parts.append(f"<div class=\"bar\"><b>TJS GEO Map</b><br>CelesTrak GEO TLEから抽出したTJSの地図表示<br>表示衛星数：{len(rows)} 機</div>")
 parts.append("<div id=\"map\"></div>")
 parts.append("<script>")
 parts.append("const data = "+markers+";")
