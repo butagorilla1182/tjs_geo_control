@@ -26,14 +26,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install skyfield
 
-      - name: Download latest GEO and GPZ TLE from CelesTrak
+      - name: Download latest GEO and GPZ TLE
         run: |
           set -euo pipefail
 
-          curl -fL "https://celestrak.org/NORAD/elements/gp.php?GROUP=GEO&FORMAT=TLE" -o geo_group.tle
-          curl -fL "https://celestrak.org/NORAD/elements/gp.php?SPECIAL=GPZ&FORMAT=TLE" -o gpz.tle
+          curl -fL --retry 3 --retry-delay 5 \
+            "https://celestrak.org/NORAD/elements/gp.php?GROUP=GEO&FORMAT=TLE" \
+            -o geo_group.tle
+
+          curl -fL --retry 3 --retry-delay 5 \
+            "https://celestrak.org/NORAD/elements/gp.php?SPECIAL=GPZ&FORMAT=TLE" \
+            -o gpz.tle
 
           cat geo_group.tle gpz.tle > geo.tle
+
+      - name: Download CelesTrak SATCAT
+        run: |
+          set -euo pipefail
+
+          curl -fL --retry 3 --retry-delay 5 \
+            "https://celestrak.org/satcat/records.php?GROUP=GEO&FORMAT=CSV&ONORBIT=1" \
+            -o satcat_geo.csv
+
+          curl -fL --retry 3 --retry-delay 5 \
+            "https://celestrak.org/satcat/records.php?SPECIAL=gpz&FORMAT=CSV&ONORBIT=1" \
+            -o satcat_gpz.csv
 
       - name: Generate TJS CSV and HTML
         run: |
