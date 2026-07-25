@@ -11,6 +11,11 @@ out_csv = Path("tjs_geo.csv")
 out_clean_tle = Path("tjs_clean.tle")
 out_tjs_tle = Path("tjs.tle")
 
+satcat_files = [
+    Path("satcat_geo.csv"),
+    Path("satcat_gpz.csv"),
+]
+
 
 def is_tjs(name: str) -> bool:
     upper = name.upper()
@@ -44,21 +49,74 @@ def parse_tle_epoch(line1: str):
     }
 
 
-# 更新前の衛星一覧
+# -------------------------
+# SATCAT読み込み
+# -------------------------
+
+satcat = {}
+
+for satcat_path in satcat_files:
+
+    if not satcat_path.exists():
+        print("SATCAT file not found:", satcat_path)
+        continue
+
+    with satcat_path.open(
+        encoding="utf-8-sig",
+        newline=""
+    ) as f:
+
+        for row in csv.DictReader(f):
+
+            norad = str(
+                row.get("NORAD_CAT_ID", "")
+            ).strip()
+
+            if not norad:
+                continue
+
+            satcat[norad] = {
+                "launch_date": str(
+                    row.get("LAUNCH_DATE", "")
+                ).strip(),
+
+                "launch_site": str(
+                    row.get("LAUNCH_SITE", "")
+                ).strip(),
+            }
+
+
+print("SATCAT records loaded:", len(satcat))
+
+
+# -------------------------
+# 更新前のTJS一覧
+# -------------------------
+
 old_norad = set()
 
 if out_csv.exists():
     try:
-        with out_csv.open(encoding="utf-8") as f:
+        with out_csv.open(
+            encoding="utf-8"
+        ) as f:
+
             for row in csv.DictReader(f):
                 if row.get("norad"):
-                    old_norad.add(row["norad"])
-    except Exception:
-        pass
+                    old_norad.add(
+                        row["norad"]
+                    )
+
+    except Exception as e:
+        print(
+            "Could not read old CSV:",
+            e
+        )
 
 
 ts = load.timescale()
 t = ts.now()
+
 
 lines = [
     line.strip()
@@ -70,7 +128,10 @@ lines = [
 ]
 
 
-# NORAD IDごとに最新TLEだけ残す
+# -------------------------
+# NORAD IDごとに最新TLEだけ採用
+# -------------------------
+
 satellites = {}
 
 i = 0
@@ -102,20 +163,32 @@ while i < len(lines) - 2:
                 "epoch": epoch,
             }
 
-            # 同じNORADがあれば、エポックが新しい方を採用
-            current = satellites.get(norad)
+            current = satellites.get(
+                norad
+            )
 
+            # GEOとGPZに重複した場合、
+            # エポックが新しい方を採用
             if (
                 current is None
-                or epoch["epoch_dt"] > current["epoch"]["epoch_dt"]
+                or epoch["epoch_dt"]
+                > current["epoch"]["epoch_dt"]
             ):
                 satellites[norad] = candidate
 
         except Exception as e:
-            print("TLE parse skip:", name, e)
+            print(
+                "TLE parse skip:",
+                name,
+                e
+            )
 
     i += 3
 
+
+# -------------------------
+# 座標計算 + SATCAT結合
+# -------------------------
 
 rows = []
 tle_output = []
@@ -138,18 +211,57 @@ for item in satellites.values():
         )
 
         geocentric = sat.at(t)
-        subpoint = wgs84.subpoint(geocentric)
+        subpoint = wgs84.subpoint(
+            geocentric
+        )
+
+        satcat_info = satcat.get(
+            norad,
+            {}
+        )
 
         rows.append({
             "name": name,
             "norad": norad,
-            "lat": round(subpoint.latitude.degrees, 4),
-            "lon": round(subpoint.longitude.degrees, 4),
-            "alt_km": round(subpoint.elevation.km, 1),
-            "epoch_raw": epoch["epoch_raw"],
-            "epoch_day": epoch["epoch_day"],
-            "epoch_utc": epoch["epoch_utc"],
-            "epoch_iso": epoch["epoch_iso"],
+
+            "lat": round(
+                subpoint.latitude.degrees,
+                4
+            ),
+
+            "lon": round(
+                subpoint.longitude.degrees,
+                4
+            ),
+
+            "alt_km": round(
+                subpoint.elevation.km,
+                1
+            ),
+
+            "launch_date":
+                satcat_info.get(
+                    "launch_date",
+                    ""
+                ),
+
+            "launch_site":
+                satcat_info.get(
+                    "launch_site",
+                    ""
+                ),
+
+            "epoch_raw":
+                epoch["epoch_raw"],
+
+            "epoch_day":
+                epoch["epoch_day"],
+
+            "epoch_utc":
+                epoch["epoch_utc"],
+
+            "epoch_iso":
+                epoch["epoch_iso"],
         })
 
         tle_output.extend([
@@ -159,11 +271,21 @@ for item in satellites.values():
         ])
 
     except Exception as e:
-        print("Satellite calculation skip:", item["name"], e)
+        print(
+            "Satellite calculation skip:",
+            item["name"],
+            e
+        )
 
 
-rows.sort(key=lambda r: r["lon"])
+rows.sort(
+    key=lambda r: r["lon"]
+)
 
+
+# -------------------------
+# CSV保存
+# -------------------------
 
 with out_csv.open(
     "w",
@@ -179,6 +301,8 @@ with out_csv.open(
             "lat",
             "lon",
             "alt_km",
+            "launch_date",
+            "launch_site",
             "epoch_raw",
             "epoch_day",
             "epoch_utc",
@@ -190,7 +314,13 @@ with out_csv.open(
     writer.writerows(rows)
 
 
-tle_text = "\n".join(tle_output) + "\n"
+# -------------------------
+# TJS TLE保存
+# -------------------------
+
+tle_text = "\n".join(
+    tle_output
+) + "\n"
 
 out_clean_tle.write_text(
     tle_text,
@@ -202,6 +332,10 @@ out_tjs_tle.write_text(
     encoding="utf-8"
 )
 
+
+# -------------------------
+# ログ
+# -------------------------
 
 new_rows = [
     r for r in rows
@@ -216,7 +350,9 @@ print("TJS count:", len(rows))
 if new_rows:
 
     print("")
-    print("=== NEW TJS SATELLITES ===")
+    print(
+        "=== NEW TJS SATELLITES ==="
+    )
 
     for r in new_rows:
         print(
@@ -224,14 +360,16 @@ if new_rows:
             r["name"],
             "NORAD:",
             r["norad"],
-            "Lon:",
-            r["lon"],
-            "Epoch:",
-            r["epoch_utc"]
+            "Launch:",
+            r["launch_date"],
+            "Site:",
+            r["launch_site"],
         )
 
 else:
-    print("No new TJS satellites.")
+    print(
+        "No new TJS satellites."
+    )
 
 
 print("")
@@ -241,7 +379,10 @@ for r in rows:
     print(
         r["name"],
         r["norad"],
-        r["lon"],
-        r["epoch_day"],
-        r["epoch_utc"]
+        "Launch:",
+        r["launch_date"],
+        "Site:",
+        r["launch_site"],
+        "Epoch:",
+        r["epoch_utc"],
     )
