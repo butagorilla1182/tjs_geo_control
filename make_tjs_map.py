@@ -227,6 +227,7 @@ function freshnessOf(epochIso) {
 function popOf(r) {
 
     const c = catOf(r);
+    const fresh = freshnessOf(r.epoch_iso);
 
     return (
         "<b>" + r.name + "</b><br>" +
@@ -264,7 +265,16 @@ function popOf(r) {
         r.epoch_utc + "<br>" +
 
         "<b>経過時間：</b>" +
-        ageOf(r.epoch_iso) + "<br>" +
+ageOf(r.epoch_iso) + "<br>" +
+
+"<b>TLE鮮度：</b>" +
+"<span style='" +
+"font-weight:bold;" +
+"color:" + fresh.color + ";" +
+"'>" +
+fresh.icon + " " +
+fresh.text +
+"</span><br>" +
 
         "<hr>" +
 
