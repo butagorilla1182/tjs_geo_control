@@ -79,6 +79,17 @@ body {
     height: 72vh;
     width: 100vw;
 }
+
+/* 詳細ポップアップを衛星カテゴリより前面にする */
+.leaflet-popup-pane {
+    z-index: 1200 !important;
+}
+
+/* 左下の衛星カテゴリを後ろにする */
+.leaflet-bottom.leaflet-left {
+    z-index: 600 !important;
+}
+
 </style>
 </head>
 <body>
