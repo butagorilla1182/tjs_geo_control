@@ -26,9 +26,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install skyfield
 
-      - name: Download latest GEO TLE from CelesTrak
-        run: |
-          curl -L "https://celestrak.org/NORAD/elements/gp.php?GROUP=geo&FORMAT=tle" -o geo.tle
+      - name: Download latest GEO and GPZ TLE from CelesTrak
+  run: |
+    set -euo pipefail
+
+    curl -fL \
+      "https://celestrak.org/NORAD/elements/gp.php?GROUP=GEO&FORMAT=TLE" \
+      -o geo_group.tle
+
+    curl -fL \
+      "https://celestrak.org/NORAD/elements/gp.php?SPECIAL=GPZ&FORMAT=TLE" \
+      -o gpz.tle
+
+    cat geo_group.tle gpz.tle > geo.tle
 
       - name: Generate TJS CSV and HTML
         run: |
