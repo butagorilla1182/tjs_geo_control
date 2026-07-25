@@ -178,6 +178,51 @@ function ageOf(epochIso) {
     return text;
 }
 
+function freshnessOf(epochIso) {
+
+    const epoch = new Date(epochIso);
+
+    if (Number.isNaN(epoch.getTime())) {
+        return {
+            color: "#718096",
+            icon: "⚪",
+            text: "不明"
+        };
+    }
+
+    const ageHours =
+        (Date.now() - epoch.getTime()) / 3600000;
+
+    if (ageHours < 24) {
+        return {
+            color: "#16a34a",
+            icon: "🟢",
+            text: "新鮮"
+        };
+    }
+
+    if (ageHours < 72) {
+        return {
+            color: "#ca8a04",
+            icon: "🟡",
+            text: "やや古い"
+        };
+    }
+
+    if (ageHours < 168) {
+        return {
+            color: "#ea580c",
+            icon: "🟠",
+            text: "古い"
+        };
+    }
+
+    return {
+        color: "#dc2626",
+        icon: "🔴",
+        text: "要注意"
+    };
+}
 
 function popOf(r) {
 
