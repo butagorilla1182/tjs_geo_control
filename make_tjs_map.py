@@ -1,6 +1,7 @@
 import csv
 import json
 
+
 rows = list(
     csv.DictReader(
         open("tjs_geo.csv", encoding="utf-8")
@@ -41,7 +42,7 @@ parts.append(
 parts.append(
     f'<div class="bar">'
     f'<b>TJS GEO Map</b><br>'
-    f'CelesTrak GEO TLEから抽出したTJSの地図表示<br>'
+    f'CelesTrak GEO + GPZから抽出したTJSの地図表示<br>'
     f'表示衛星数：{len(rows)} 機'
     f'</div>'
 )
@@ -88,47 +89,6 @@ function catOf(r) {
             "中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"
         ];
 
-    if (
-        n.includes("CHINASAT") ||
-        n.includes("ZHONGXING") ||
-        n.includes("ZX-") ||
-        n.includes("TIANLIAN") ||
-        n.includes("APSTAR")
-    )
-        return [
-            "#c53030",
-            "PRC通信・中継",
-            "中国系の通信・データ中継衛星候補"
-        ];
-
-    if (
-        n.includes("LUCH") ||
-        n.includes("EXPRESS") ||
-        n.includes("EKSPRESS") ||
-        n.includes("YAMAL") ||
-        n.includes("RADUGA") ||
-        n.includes("GARPUN")
-    )
-        return [
-            "#6b46c1",
-            "CIS/Russia系",
-            "ロシア・旧ソ連系の通信またはデータ中継衛星候補"
-        ];
-
-    if (
-        n.includes("ELEKTRO") ||
-        n.includes("HIMAWARI") ||
-        n.includes("GOES") ||
-        n.includes("METEOSAT") ||
-        n.includes("FENGYUN") ||
-        n.includes("FY-")
-    )
-        return [
-            "#2f855a",
-            "気象・観測",
-            "静止気象・地球観測系"
-        ];
-
     return [
         "#718096",
         "未整理",
@@ -137,19 +97,70 @@ function catOf(r) {
 }
 
 
+function formatLaunchDate(date) {
+
+    if (!date) {
+        return "不明";
+    }
+
+    return date.replaceAll("-", "/");
+}
+
+
+function launchAgeOf(date) {
+
+    if (!date) {
+        return "不明";
+    }
+
+    const launch =
+        new Date(date + "T00:00:00Z");
+
+    if (Number.isNaN(launch.getTime())) {
+        return "不明";
+    }
+
+    const diff =
+        Date.now() - launch.getTime();
+
+    if (diff < 0) {
+        return "未打上げ";
+    }
+
+    const days =
+        Math.floor(diff / 86400000);
+
+    if (days < 365) {
+        return days + "日";
+    }
+
+    const years =
+        Math.floor(days / 365.2425);
+
+    const remainDays =
+        Math.floor(days - years * 365.2425);
+
+    return years + "年 " + remainDays + "日";
+}
+
+
 function ageOf(epochIso) {
 
-    const epoch = new Date(epochIso);
+    const epoch =
+        new Date(epochIso);
 
     if (Number.isNaN(epoch.getTime())) {
         return "不明";
     }
 
-    let diff = Date.now() - epoch.getTime();
+    let diff =
+        Date.now() - epoch.getTime();
 
-    const future = diff < 0;
+    const future =
+        diff < 0;
 
-    diff = Math.abs(diff);
+    diff =
+        Math.abs(diff);
 
     const totalMinutes =
         Math.floor(diff / 60000);
@@ -169,18 +180,20 @@ function ageOf(epochIso) {
         text += days + "日 ";
     }
 
-    text += hours + "時間" + minutes + "分";
+    text +=
+        hours + "時間" +
+        minutes + "分";
 
-    if (future) {
-        return "未来 " + text;
-    }
-
-    return text;
+    return future
+        ? "未来 " + text
+        : text;
 }
+
 
 function freshnessOf(epochIso) {
 
-    const epoch = new Date(epochIso);
+    const epoch =
+        new Date(epochIso);
 
     if (Number.isNaN(epoch.getTime())) {
         return {
@@ -193,6 +206,7 @@ function freshnessOf(epochIso) {
     const ageHours =
         (Date.now() - epoch.getTime()) / 3600000;
 
+
     if (ageHours < 24) {
         return {
             color: "#16a34a",
@@ -200,6 +214,7 @@ function freshnessOf(epochIso) {
             text: "新鮮"
         };
     }
+
 
     if (ageHours < 72) {
         return {
@@ -209,6 +224,7 @@ function freshnessOf(epochIso) {
         };
     }
 
+
     if (ageHours < 168) {
         return {
             color: "#ea580c",
@@ -217,12 +233,14 @@ function freshnessOf(epochIso) {
         };
     }
 
+
     return {
         color: "#dc2626",
         icon: "🔴",
         text: "要注意"
     };
 }
+
 
 function popOf(r) {
 
@@ -258,6 +276,17 @@ function popOf(r) {
 
         "<hr>" +
 
+        "🚀 <b>打上げ日：</b>" +
+        formatLaunchDate(r.launch_date) + "<br>" +
+
+        "📍 <b>打上げ場所：</b>" +
+        (r.launch_site || "不明") + "<br>" +
+
+        "🛰 <b>打上げから：</b>" +
+        launchAgeOf(r.launch_date) + "<br>" +
+
+        "<hr>" +
+
         "<b>TLEエポック：</b>" +
         r.epoch_day + "<br>" +
 
@@ -265,16 +294,19 @@ function popOf(r) {
         r.epoch_utc + "<br>" +
 
         "<b>経過時間：</b>" +
-ageOf(r.epoch_iso) + "<br>" +
+        ageOf(r.epoch_iso) + "<br>" +
 
-"<b>TLE鮮度：</b>" +
-"<span style='" +
-"font-weight:bold;" +
-"color:" + fresh.color + ";" +
-"'>" +
-fresh.icon + " " +
-fresh.text +
-"</span><br>" +
+        "<b>TLE鮮度：</b>" +
+
+        "<span style='" +
+        "font-weight:bold;" +
+        "color:" + fresh.color + ";" +
+        "'>" +
+
+        fresh.icon + " " +
+        fresh.text +
+
+        "</span><br>" +
 
         "<hr>" +
 
@@ -333,9 +365,6 @@ legend.onAdd = function() {
     div.innerHTML =
         "<b>衛星カテゴリ</b><br>" +
         "<div>🔵 TJS・通信技術試験</div>" +
-        "<div>🔴 PRC通信・中継</div>" +
-        "<div>🟣 CIS/Russia系</div>" +
-        "<div>🟢 気象・観測</div>" +
         "<div>🟠 移動中・傾斜大</div>" +
         "<div>⚫ 未整理</div>";
 
