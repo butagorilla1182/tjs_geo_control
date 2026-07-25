@@ -1,4 +1,4 @@
-<html><head><meta charset="utf-8"><title>TJS Map</title>
+<html><head><meta charset="utf-8"><title>TJS GEO Map</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -6,8 +6,232 @@
 <div class="bar"><b>TJS GEO Map</b><br>CelesTrak GEO TLEから抽出したTJSの地図表示<br>表示衛星数：20 機</div>
 <div id="map"></div>
 <script>
-const data = [{"name": "TJS-7", "norad": "49115", "lat": "0.145", "lon": "-99.0661", "alt_km": "35771.8"}, {"name": "TJS-14", "norad": "62804", "lat": "-0.5365", "lon": "18.7538", "alt_km": "35781.3"}, {"name": "TJS-20", "norad": "66142", "lat": "-5.3819", "lon": "62.6655", "alt_km": "35791.7"}, {"name": "TJS-22", "norad": "66990", "lat": "-1.3453", "lon": "66.7993", "alt_km": "35776.6"}, {"name": "TJS-2", "norad": "41911", "lat": "0.6977", "lon": "66.8638", "alt_km": "35784.2"}, {"name": "TJS-4", "norad": "44637", "lat": "0.0597", "lon": "83.4634", "alt_km": "35804.9"}, {"name": "TJS-24", "norad": "69235", "lat": "0.0769", "lon": "89.8025", "alt_km": "35790.6"}, {"name": "TJS-10", "norad": "58204", "lat": "0.8157", "lon": "92.0501", "alt_km": "35779.7"}, {"name": "TJS-15", "norad": "63157", "lat": "0.132", "lon": "93.4914", "alt_km": "35806.0"}, {"name": "TJS-5", "norad": "44978", "lat": "-0.049", "lon": "106.6205", "alt_km": "35821.0"}, {"name": "TJS-11", "norad": "59020", "lat": "-3.8005", "lon": "111.9194", "alt_km": "35805.8"}, {"name": "TJS-9", "norad": "50574", "lat": "0.0226", "lon": "136.6", "alt_km": "35800.6"}, {"name": "TJS-19", "norad": "63924", "lat": "-1.4916", "lon": "141.0335", "alt_km": "35789.4"}, {"name": "TJS-12", "norad": "62374", "lat": "-0.0563", "lon": "146.4129", "alt_km": "35790.5"}, {"name": "TJS-3", "norad": "43874", "lat": "-1.6293", "lon": "147.5491", "alt_km": "35797.6"}, {"name": "TJS-1", "norad": "40892", "lat": "-0.2927", "lon": "154.7024", "alt_km": "35808.4"}, {"name": "TJS-16", "norad": "63397", "lat": "-0.9316", "lon": "160.5993", "alt_km": "35781.7"}, {"name": "TJS-17", "norad": "63524", "lat": "-0.9406", "lon": "164.5142", "alt_km": "35784.9"}, {"name": "TJS-23", "norad": "67226", "lat": "2.5901", "lon": "175.5826", "alt_km": "35801.4"}, {"name": "TJS-6", "norad": "47613", "lat": "0.1157", "lon": "179.0147", "alt_km": "35796.9"}];
+const data = [{"name": "TJS-7", "norad": "49115", "lat": "0.1145", "lon": "-99.0606", "alt_km": "35773.0", "epoch_raw": "26177.64592111", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 15:30:07 UTC", "epoch_iso": "2026-06-26T15:30:07.583904Z"}, {"name": "TJS-14", "norad": "62804", "lat": "-0.5958", "lon": "18.7559", "alt_km": "35780.7", "epoch_raw": "26178.16826918", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 04:02:18 UTC", "epoch_iso": "2026-06-27T04:02:18.457152Z"}, {"name": "TJS-20", "norad": "66142", "lat": "-5.2786", "lon": "62.6995", "alt_km": "35794.5", "epoch_raw": "26177.92669671", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 22:14:26 UTC", "epoch_iso": "2026-06-26T22:14:26.595744Z"}, {"name": "TJS-22", "norad": "66990", "lat": "-1.2576", "lon": "66.805", "alt_km": "35775.9", "epoch_raw": "26177.85033218", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 20:24:28 UTC", "epoch_iso": "2026-06-26T20:24:28.700352Z"}, {"name": "TJS-2", "norad": "41911", "lat": "0.5928", "lon": "66.8642", "alt_km": "35784.8", "epoch_raw": "26178.17780256", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 04:16:02 UTC", "epoch_iso": "2026-06-27T04:16:02.141184Z"}, {"name": "TJS-4", "norad": "44637", "lat": "0.0412", "lon": "83.4558", "alt_km": "35804.3", "epoch_raw": "26178.18118258", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 04:20:54 UTC", "epoch_iso": "2026-06-27T04:20:54.174912Z"}, {"name": "TJS-24", "norad": "69235", "lat": "0.0626", "lon": "89.8009", "alt_km": "35790.8", "epoch_raw": "26178.14419691", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 03:27:38 UTC", "epoch_iso": "2026-06-27T03:27:38.613024Z"}, {"name": "TJS-10", "norad": "58204", "lat": "0.4246", "lon": "92.0442", "alt_km": "35782.0", "epoch_raw": "26177.72731740", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 17:27:20 UTC", "epoch_iso": "2026-06-26T17:27:20.223360Z"}, {"name": "TJS-15", "norad": "63157", "lat": "0.0751", "lon": "93.4838", "alt_km": "35804.2", "epoch_raw": "26177.72950027", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 17:30:28 UTC", "epoch_iso": "2026-06-26T17:30:28.823328Z"}, {"name": "TJS-5", "norad": "44978", "lat": "-0.0613", "lon": "106.6071", "alt_km": "35818.6", "epoch_raw": "26178.11460404", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 02:45:01 UTC", "epoch_iso": "2026-06-27T02:45:01.789056Z"}, {"name": "TJS-11", "norad": "59020", "lat": "-3.5027", "lon": "111.9243", "alt_km": "35805.5", "epoch_raw": "26177.90179284", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 21:38:34 UTC", "epoch_iso": "2026-06-26T21:38:34.901376Z"}, {"name": "TJS-9", "norad": "50574", "lat": "0.0235", "lon": "136.5947", "alt_km": "35798.7", "epoch_raw": "26177.90664619", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 21:45:34 UTC", "epoch_iso": "2026-06-26T21:45:34.230816Z"}, {"name": "TJS-19", "norad": "63924", "lat": "-1.0437", "lon": "141.0226", "alt_km": "35791.3", "epoch_raw": "26177.71502993", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 17:09:38 UTC", "epoch_iso": "2026-06-26T17:09:38.585952Z"}, {"name": "TJS-12", "norad": "62374", "lat": "0.0316", "lon": "146.4111", "alt_km": "35789.0", "epoch_raw": "26177.90855287", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 21:48:18 UTC", "epoch_iso": "2026-06-26T21:48:18.967968Z"}, {"name": "TJS-3", "norad": "43874", "lat": "-1.928", "lon": "147.5435", "alt_km": "35798.5", "epoch_raw": "26177.77507240", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 18:36:06 UTC", "epoch_iso": "2026-06-26T18:36:06.255360Z"}, {"name": "TJS-1", "norad": "40892", "lat": "-0.3387", "lon": "154.6939", "alt_km": "35806.0", "epoch_raw": "26178.13655910", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 03:16:38 UTC", "epoch_iso": "2026-06-27T03:16:38.706240Z"}, {"name": "TJS-16", "norad": "63397", "lat": "-1.0387", "lon": "160.6021", "alt_km": "35779.8", "epoch_raw": "26177.77462494", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 18:35:27 UTC", "epoch_iso": "2026-06-26T18:35:27.594816Z"}, {"name": "TJS-17", "norad": "63524", "lat": "-1.0376", "lon": "164.5156", "alt_km": "35783.8", "epoch_raw": "26177.77213769", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 18:31:52 UTC", "epoch_iso": "2026-06-26T18:31:52.696416Z"}, {"name": "TJS-23", "norad": "67226", "lat": "3.2911", "lon": "175.5595", "alt_km": "35799.9", "epoch_raw": "26177.57627124", "epoch_day": "2026年177日目", "epoch_utc": "2026/06/26 13:49:49 UTC", "epoch_iso": "2026-06-26T13:49:49.835136Z"}, {"name": "TJS-6", "norad": "47613", "lat": "0.1246", "lon": "179.0102", "alt_km": "35795.9", "epoch_raw": "26178.12873200", "epoch_day": "2026年178日目", "epoch_utc": "2026/06/27 03:05:22 UTC", "epoch_iso": "2026-06-27T03:05:22.444800Z"}];
 const map = L.map("map").setView([0,140],2);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 6, attribution: "OpenStreetMap"}).addTo(map);
-function catOf(r){const n=String(r.name||"").toUpperCase();const lat=Math.abs(parseFloat(r.lat||"0"));if(lat>3)return ["#dd6b20","移動中・傾斜大","GEO付近だが南北に大きく振れている。移動中・静止化途中・傾斜軌道の可能性"];if(n.includes("TJS")||n.includes("TONGXIN"))return ["#2b6cb0","TJS・通信技術試験","中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"];if(n.includes("CHINASAT")||n.includes("ZHONGXING")||n.includes("ZX-")||n.includes("TIANLIAN")||n.includes("APSTAR"))return ["#c53030","PRC通信・中継","中国系の通信・データ中継衛星候補"];if(n.includes("LUCH")||n.includes("EXPRESS")||n.includes("EKSPRESS")||n.includes("YAMAL")||n.includes("RADUGA")||n.includes("GARPUN"))return ["#6b46c1","CIS/Russia系","ロシア・旧ソ連系の通信またはデータ中継衛星候補"];if(n.includes("ELEKTRO")||n.includes("HIMAWARI")||n.includes("GOES")||n.includes("METEOSAT")||n.includes("FENGYUN")||n.includes("FY-"))return ["#2f855a","気象・観測","静止気象・地球観測系"];return ["#718096","未整理","用途未整理。公開情報または自分メモで追記"];}function popOf(r){const c=catOf(r);return "<b>"+r.name+"</b><br><span style='display:inline-block;margin:4px 0;padding:2px 8px;border-radius:10px;background:"+c[0]+";color:white;font-size:12px;'>"+c[1]+"</span><br>NORAD "+r.norad+"<br>Lat "+r.lat+"<br>Lon "+r.lon+"<br>Alt km "+r.alt_km+"<br><hr><b>分類:</b> "+c[1]+"<br><b>任務メモ:</b> "+c[2];}data.forEach(r=>{const c=catOf(r);L.circleMarker([parseFloat(r.lat),parseFloat(r.lon)],{radius:8,color:"#1a202c",weight:1,fillColor:c[0],fillOpacity:0.9}).addTo(map).bindPopup(popOf(r));});const legend=L.control({position:"bottomleft"});legend.onAdd=function(){const div=L.DomUtil.create("div","info legend");div.style.background="white";div.style.padding="10px";div.style.borderRadius="8px";div.style.boxShadow="0 1px 5px rgba(0,0,0,0.3)";div.style.fontSize="13px";div.innerHTML="<b>衛星カテゴリ</b><br><div>🔵 TJS・通信技術試験</div><div>🔴 PRC通信・中継</div><div>🟣 CIS/Russia系</div><div>🟢 気象・観測</div><div>🟠 移動中・傾斜大</div><div>⚫ 未整理</div>";return div;};legend.addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:6, attribution:"OpenStreetMap"}).addTo(map);
+
+function catOf(r) {
+
+    const n = String(r.name || "").toUpperCase();
+    const lat = Math.abs(parseFloat(r.lat || "0"));
+
+    if (lat > 3)
+        return [
+            "#dd6b20",
+            "移動中・傾斜大",
+            "GEO付近だが南北に大きく振れている。移動中・静止化途中・傾斜軌道の可能性"
+        ];
+
+    if (
+        n.includes("TJS") ||
+        n.includes("TONGXIN")
+    )
+        return [
+            "#2b6cb0",
+            "TJS・通信技術試験",
+            "中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"
+        ];
+
+    if (
+        n.includes("CHINASAT") ||
+        n.includes("ZHONGXING") ||
+        n.includes("ZX-") ||
+        n.includes("TIANLIAN") ||
+        n.includes("APSTAR")
+    )
+        return [
+            "#c53030",
+            "PRC通信・中継",
+            "中国系の通信・データ中継衛星候補"
+        ];
+
+    if (
+        n.includes("LUCH") ||
+        n.includes("EXPRESS") ||
+        n.includes("EKSPRESS") ||
+        n.includes("YAMAL") ||
+        n.includes("RADUGA") ||
+        n.includes("GARPUN")
+    )
+        return [
+            "#6b46c1",
+            "CIS/Russia系",
+            "ロシア・旧ソ連系の通信またはデータ中継衛星候補"
+        ];
+
+    if (
+        n.includes("ELEKTRO") ||
+        n.includes("HIMAWARI") ||
+        n.includes("GOES") ||
+        n.includes("METEOSAT") ||
+        n.includes("FENGYUN") ||
+        n.includes("FY-")
+    )
+        return [
+            "#2f855a",
+            "気象・観測",
+            "静止気象・地球観測系"
+        ];
+
+    return [
+        "#718096",
+        "未整理",
+        "用途未整理。公開情報または自分メモで追記"
+    ];
+}
+
+
+function ageOf(epochIso) {
+
+    const epoch = new Date(epochIso);
+
+    if (Number.isNaN(epoch.getTime())) {
+        return "不明";
+    }
+
+    let diff = Date.now() - epoch.getTime();
+
+    const future = diff < 0;
+
+    diff = Math.abs(diff);
+
+    const totalMinutes =
+        Math.floor(diff / 60000);
+
+    const days =
+        Math.floor(totalMinutes / 1440);
+
+    const hours =
+        Math.floor((totalMinutes % 1440) / 60);
+
+    const minutes =
+        totalMinutes % 60;
+
+    let text = "";
+
+    if (days > 0) {
+        text += days + "日 ";
+    }
+
+    text += hours + "時間" + minutes + "分";
+
+    if (future) {
+        return "未来 " + text;
+    }
+
+    return text;
+}
+
+
+function popOf(r) {
+
+    const c = catOf(r);
+
+    return (
+        "<b>" + r.name + "</b><br>" +
+
+        "<span style='" +
+        "display:inline-block;" +
+        "margin:4px 0;" +
+        "padding:2px 8px;" +
+        "border-radius:10px;" +
+        "background:" + c[0] + ";" +
+        "color:white;" +
+        "font-size:12px;" +
+        "'>" +
+        c[1] +
+        "</span><br>" +
+
+        "<b>NORAD ID：</b>" +
+        r.norad + "<br>" +
+
+        "<b>緯度：</b>" +
+        r.lat + "°<br>" +
+
+        "<b>経度：</b>" +
+        r.lon + "°<br>" +
+
+        "<b>高度：</b>" +
+        r.alt_km + " km<br>" +
+
+        "<hr>" +
+
+        "<b>TLEエポック：</b>" +
+        r.epoch_day + "<br>" +
+
+        "<b>エポック日時：</b>" +
+        r.epoch_utc + "<br>" +
+
+        "<b>経過時間：</b>" +
+        ageOf(r.epoch_iso) + "<br>" +
+
+        "<hr>" +
+
+        "<b>分類：</b>" +
+        c[1] + "<br>" +
+
+        "<b>任務メモ：</b>" +
+        c[2]
+    );
+}
+
+
+data.forEach(r => {
+
+    const c = catOf(r);
+
+    L.circleMarker(
+        [
+            parseFloat(r.lat),
+            parseFloat(r.lon)
+        ],
+        {
+            radius: 8,
+            color: "#1a202c",
+            weight: 1,
+            fillColor: c[0],
+            fillOpacity: 0.9
+        }
+    )
+    .addTo(map)
+    .bindPopup(popOf(r));
+});
+
+
+const legend =
+    L.control({
+        position: "bottomleft"
+    });
+
+
+legend.onAdd = function() {
+
+    const div =
+        L.DomUtil.create(
+            "div",
+            "info legend"
+        );
+
+    div.style.background = "white";
+    div.style.padding = "10px";
+    div.style.borderRadius = "8px";
+    div.style.boxShadow =
+        "0 1px 5px rgba(0,0,0,0.3)";
+    div.style.fontSize = "13px";
+
+    div.innerHTML =
+        "<b>衛星カテゴリ</b><br>" +
+        "<div>🔵 TJS・通信技術試験</div>" +
+        "<div>🔴 PRC通信・中継</div>" +
+        "<div>🟣 CIS/Russia系</div>" +
+        "<div>🟢 気象・観測</div>" +
+        "<div>🟠 移動中・傾斜大</div>" +
+        "<div>⚫ 未整理</div>";
+
+    return div;
+};
+
+
+legend.addTo(map);
+
 </script></body></html>
