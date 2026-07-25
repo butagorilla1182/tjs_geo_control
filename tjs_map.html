@@ -6,9 +6,55 @@
 <div class="bar"><b>TJS GEO Map</b><br>CelesTrak GEO + GPZから抽出したTJSの地図表示<br>表示衛星数：22 機</div>
 <div id="map"></div>
 <script>
-const data = [{"name": "TJS-7", "norad": "49115", "lat": "-0.0205", "lon": "-99.4393", "alt_km": "35780.7", "launch_date": "2021-08-24", "launch_site": "XICLF", "epoch_raw": "26205.59061440", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:10:29 UTC", "epoch_iso": "2026-07-24T14:10:29.084160Z"}, {"name": "TJS-14", "norad": "62804", "lat": "-0.692", "lon": "18.344", "alt_km": "35779.3", "launch_date": "2025-01-23", "launch_site": "XICLF", "epoch_raw": "26205.61392785", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:44:03 UTC", "epoch_iso": "2026-07-24T14:44:03.366240Z"}, {"name": "TJS-20", "norad": "66142", "lat": "-3.8563", "lon": "62.5492", "alt_km": "35796.5", "launch_date": "2025-10-23", "launch_site": "WSC", "epoch_raw": "26205.84489024", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 20:16:38 UTC", "epoch_iso": "2026-07-24T20:16:38.516736Z"}, {"name": "TJS-22", "norad": "66990", "lat": "-0.7134", "lon": "66.469", "alt_km": "35773.9", "launch_date": "2025-12-09", "launch_site": "XICLF", "epoch_raw": "26204.77737316", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 18:39:25 UTC", "epoch_iso": "2026-07-23T18:39:25.041024Z"}, {"name": "TJS-2", "norad": "41911", "lat": "0.0997", "lon": "66.5606", "alt_km": "35785.5", "launch_date": "2017-01-05", "launch_site": "XICLF", "epoch_raw": "26205.19628041", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 04:42:38 UTC", "epoch_iso": "2026-07-24T04:42:38.627424Z"}, {"name": "TJS-4", "norad": "44637", "lat": "0.0023", "lon": "83.6145", "alt_km": "35785.0", "launch_date": "2019-10-17", "launch_site": "XICLF", "epoch_raw": "26206.05457446", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 01:18:35 UTC", "epoch_iso": "2026-07-25T01:18:35.233344Z"}, {"name": "TJS-24", "norad": "69235", "lat": "-0.0316", "lon": "90.3291", "alt_km": "35785.7", "launch_date": "2026-05-26", "launch_site": "WSC", "epoch_raw": "26205.72383284", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:22:19 UTC", "epoch_iso": "2026-07-24T17:22:19.157376Z"}, {"name": "TJS-10", "norad": "58204", "lat": "-1.0876", "lon": "92.4438", "alt_km": "35787.3", "launch_date": "2023-11-03", "launch_site": "WSC", "epoch_raw": "26205.72039067", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:17:21 UTC", "epoch_iso": "2026-07-24T17:17:21.753888Z"}, {"name": "TJS-15", "norad": "63157", "lat": "-0.1265", "lon": "94.3646", "alt_km": "35788.1", "launch_date": "2025-03-09", "launch_site": "XICLF", "epoch_raw": "26205.59406176", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:15:26 UTC", "epoch_iso": "2026-07-24T14:15:26.936064Z"}, {"name": "TJS-5", "norad": "44978", "lat": "-0.0754", "lon": "107.4207", "alt_km": "35804.1", "launch_date": "2020-01-07", "launch_site": "XICLF", "epoch_raw": "26206.56572399", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 13:34:38 UTC", "epoch_iso": "2026-07-25T13:34:38.552736Z"}, {"name": "TJS-26A", "norad": "69674", "lat": "-2.8657", "lon": "107.6509", "alt_km": "35771.6", "launch_date": "2026-06-23", "launch_site": "WSC", "epoch_raw": "26205.63141264", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 15:09:14 UTC", "epoch_iso": "2026-07-24T15:09:14.052096Z"}, {"name": "TJS-11", "norad": "59020", "lat": "-1.6783", "lon": "112.6127", "alt_km": "35796.1", "launch_date": "2024-02-23", "launch_site": "WSC", "epoch_raw": "26204.84843844", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 20:21:45 UTC", "epoch_iso": "2026-07-23T20:21:45.081216Z"}, {"name": "TJS-25", "norad": "69474", "lat": "-1.922", "lon": "120.3172", "alt_km": "35781.3", "launch_date": "2026-06-11", "launch_site": "WSC", "epoch_raw": "26205.27762468", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 06:39:46 UTC", "epoch_iso": "2026-07-24T06:39:46.772352Z"}, {"name": "TJS-9", "norad": "50574", "lat": "-0.074", "lon": "137.1937", "alt_km": "35790.5", "launch_date": "2021-12-29", "launch_site": "XICLF", "epoch_raw": "26205.51781093", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:25:38 UTC", "epoch_iso": "2026-07-24T12:25:38.864352Z"}, {"name": "TJS-19", "norad": "63924", "lat": "0.7973", "lon": "141.2738", "alt_km": "35796.4", "launch_date": "2025-05-12", "launch_site": "XICLF", "epoch_raw": "26205.76021486", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:14:42 UTC", "epoch_iso": "2026-07-24T18:14:42.563904Z"}, {"name": "TJS-12", "norad": "62374", "lat": "0.3145", "lon": "146.4803", "alt_km": "35784.4", "launch_date": "2024-12-20", "launch_site": "XICLF", "epoch_raw": "26205.92446692", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 22:11:13 UTC", "epoch_iso": "2026-07-24T22:11:13.941888Z"}, {"name": "TJS-3", "norad": "43874", "lat": "-2.6223", "lon": "148.1936", "alt_km": "35798.8", "launch_date": "2018-12-24", "launch_site": "XICLF", "epoch_raw": "26205.71094317", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:03:45 UTC", "epoch_iso": "2026-07-24T17:03:45.489888Z"}, {"name": "TJS-1", "norad": "40892", "lat": "-0.436", "lon": "154.9632", "alt_km": "35798.3", "launch_date": "2015-09-12", "launch_site": "XICLF", "epoch_raw": "26205.51225332", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:17:38 UTC", "epoch_iso": "2026-07-24T12:17:38.686848Z"}, {"name": "TJS-16", "norad": "63397", "lat": "-1.2151", "lon": "160.5947", "alt_km": "35777.6", "launch_date": "2025-03-29", "launch_site": "WSC", "epoch_raw": "26205.74365328", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:50:51 UTC", "epoch_iso": "2026-07-24T17:50:51.643392Z"}, {"name": "TJS-17", "norad": "63524", "lat": "-1.1781", "lon": "164.4883", "alt_km": "35783.7", "launch_date": "2025-04-10", "launch_site": "XICLF", "epoch_raw": "26205.76044573", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:15:02 UTC", "epoch_iso": "2026-07-24T18:15:02.511072Z"}, {"name": "TJS-23", "norad": "67226", "lat": "5.1514", "lon": "175.3564", "alt_km": "35799.4", "launch_date": "2025-12-20", "launch_site": "WSC", "epoch_raw": "26205.49937446", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 11:59:05 UTC", "epoch_iso": "2026-07-24T11:59:05.953344Z"}, {"name": "TJS-6", "norad": "47613", "lat": "0.1297", "lon": "178.4771", "alt_km": "35794.7", "launch_date": "2021-02-04", "launch_site": "XICLF", "epoch_raw": "26205.40432793", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 09:42:13 UTC", "epoch_iso": "2026-07-24T09:42:13.933152Z"}];
+const data = [{"name": "TJS-7", "norad": "49115", "lat": "-0.0268", "lon": "-99.439", "alt_km": "35781.0", "launch_date": "2021-08-24", "launch_site": "XICLF", "epoch_raw": "26205.59061440", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:10:29 UTC", "epoch_iso": "2026-07-24T14:10:29.084160Z"}, {"name": "TJS-14", "norad": "62804", "lat": "-0.6919", "lon": "18.3446", "alt_km": "35779.2", "launch_date": "2025-01-23", "launch_site": "XICLF", "epoch_raw": "26205.61392785", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:44:03 UTC", "epoch_iso": "2026-07-24T14:44:03.366240Z"}, {"name": "TJS-20", "norad": "66142", "lat": "-3.755", "lon": "62.5484", "alt_km": "35796.9", "launch_date": "2025-10-23", "launch_site": "WSC", "epoch_raw": "26205.84489024", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 20:16:38 UTC", "epoch_iso": "2026-07-24T20:16:38.516736Z"}, {"name": "TJS-22", "norad": "66990", "lat": "-0.6802", "lon": "66.4696", "alt_km": "35773.9", "launch_date": "2025-12-09", "launch_site": "XICLF", "epoch_raw": "26204.77737316", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 18:39:25 UTC", "epoch_iso": "2026-07-23T18:39:25.041024Z"}, {"name": "TJS-2", "norad": "41911", "lat": "0.0746", "lon": "66.5604", "alt_km": "35785.6", "launch_date": "2017-01-05", "launch_site": "XICLF", "epoch_raw": "26205.19628041", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 04:42:38 UTC", "epoch_iso": "2026-07-24T04:42:38.627424Z"}, {"name": "TJS-4", "norad": "44637", "lat": "0.004", "lon": "83.6146", "alt_km": "35785.0", "launch_date": "2019-10-17", "launch_site": "XICLF", "epoch_raw": "26206.05457446", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 01:18:35 UTC", "epoch_iso": "2026-07-25T01:18:35.233344Z"}, {"name": "TJS-24", "norad": "69235", "lat": "-0.0346", "lon": "90.3292", "alt_km": "35785.7", "launch_date": "2026-05-26", "launch_site": "WSC", "epoch_raw": "26205.72383284", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:22:19 UTC", "epoch_iso": "2026-07-24T17:22:19.157376Z"}, {"name": "TJS-10", "norad": "58204", "lat": "-1.1518", "lon": "92.4427", "alt_km": "35787.7", "launch_date": "2023-11-03", "launch_site": "WSC", "epoch_raw": "26205.72039067", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:17:21 UTC", "epoch_iso": "2026-07-24T17:17:21.753888Z"}, {"name": "TJS-15", "norad": "63157", "lat": "-0.1346", "lon": "94.3645", "alt_km": "35787.8", "launch_date": "2025-03-09", "launch_site": "XICLF", "epoch_raw": "26205.59406176", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:15:26 UTC", "epoch_iso": "2026-07-24T14:15:26.936064Z"}, {"name": "TJS-5", "norad": "44978", "lat": "-0.0775", "lon": "107.4194", "alt_km": "35803.3", "launch_date": "2020-01-07", "launch_site": "XICLF", "epoch_raw": "26206.56572399", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 13:34:38 UTC", "epoch_iso": "2026-07-25T13:34:38.552736Z"}, {"name": "TJS-26A", "norad": "69674", "lat": "-2.6968", "lon": "107.6444", "alt_km": "35771.5", "launch_date": "2026-06-23", "launch_site": "WSC", "epoch_raw": "26205.63141264", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 15:09:14 UTC", "epoch_iso": "2026-07-24T15:09:14.052096Z"}, {"name": "TJS-11", "norad": "59020", "lat": "-1.5768", "lon": "112.6093", "alt_km": "35796.1", "launch_date": "2024-02-23", "launch_site": "WSC", "epoch_raw": "26204.84843844", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 20:21:45 UTC", "epoch_iso": "2026-07-23T20:21:45.081216Z"}, {"name": "TJS-25", "norad": "69474", "lat": "-1.7718", "lon": "120.3108", "alt_km": "35781.5", "launch_date": "2026-06-11", "launch_site": "WSC", "epoch_raw": "26205.27762468", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 06:39:46 UTC", "epoch_iso": "2026-07-24T06:39:46.772352Z"}, {"name": "TJS-9", "norad": "50574", "lat": "-0.0752", "lon": "137.1934", "alt_km": "35790.2", "launch_date": "2021-12-29", "launch_site": "XICLF", "epoch_raw": "26205.51781093", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:25:38 UTC", "epoch_iso": "2026-07-24T12:25:38.864352Z"}, {"name": "TJS-19", "norad": "63924", "lat": "0.8801", "lon": "141.2709", "alt_km": "35796.8", "launch_date": "2025-05-12", "launch_site": "XICLF", "epoch_raw": "26205.76021486", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:14:42 UTC", "epoch_iso": "2026-07-24T18:14:42.563904Z"}, {"name": "TJS-12", "norad": "62374", "lat": "0.3275", "lon": "146.4804", "alt_km": "35784.1", "launch_date": "2024-12-20", "launch_site": "XICLF", "epoch_raw": "26205.92446692", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 22:11:13 UTC", "epoch_iso": "2026-07-24T22:11:13.941888Z"}, {"name": "TJS-3", "norad": "43874", "lat": "-2.6338", "lon": "148.1943", "alt_km": "35798.8", "launch_date": "2018-12-24", "launch_site": "XICLF", "epoch_raw": "26205.71094317", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:03:45 UTC", "epoch_iso": "2026-07-24T17:03:45.489888Z"}, {"name": "TJS-1", "norad": "40892", "lat": "-0.4372", "lon": "154.9624", "alt_km": "35797.8", "launch_date": "2015-09-12", "launch_site": "XICLF", "epoch_raw": "26205.51225332", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:17:38 UTC", "epoch_iso": "2026-07-24T12:17:38.686848Z"}, {"name": "TJS-16", "norad": "63397", "lat": "-1.2139", "lon": "160.5957", "alt_km": "35777.5", "launch_date": "2025-03-29", "launch_site": "WSC", "epoch_raw": "26205.74365328", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:50:51 UTC", "epoch_iso": "2026-07-24T17:50:51.643392Z"}, {"name": "TJS-17", "norad": "63524", "lat": "-1.1754", "lon": "164.4888", "alt_km": "35783.6", "launch_date": "2025-04-10", "launch_site": "XICLF", "epoch_raw": "26205.76044573", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:15:02 UTC", "epoch_iso": "2026-07-24T18:15:02.511072Z"}, {"name": "TJS-23", "norad": "67226", "lat": "5.2012", "lon": "175.3609", "alt_km": "35799.0", "launch_date": "2025-12-20", "launch_site": "WSC", "epoch_raw": "26205.49937446", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 11:59:05 UTC", "epoch_iso": "2026-07-24T11:59:05.953344Z"}, {"name": "TJS-6", "norad": "47613", "lat": "0.1289", "lon": "178.4765", "alt_km": "35794.5", "launch_date": "2021-02-04", "launch_site": "XICLF", "epoch_raw": "26205.40432793", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 09:42:13 UTC", "epoch_iso": "2026-07-24T09:42:13.933152Z"}];
 const map = L.map("map").setView([0,140],2);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:6, attribution:"OpenStreetMap"}).addTo(map);
+
+const LAUNCH_SITES = {
+
+    // 中国
+    "WSC":   "文昌衛星発射場",
+    "XICLF": "西昌衛星発射センター",
+    "JSC":   "酒泉衛星発射センター",
+    "TAISC": "太原衛星発射センター",
+    "SCSLA": "南シナ海打上げ区域",
+    "YSLA":  "黄海打上げ区域",
+
+    // ロシア・旧ソ連圏
+    "DLS":   "ドンバロフスキー発射場",
+    "PLMSC": "プレセツク宇宙基地",
+    "KYMSC": "カプースチン・ヤール",
+    "VOSTO": "ボストーチヌイ宇宙基地",
+    "SVOBO": "スヴォボードヌイ宇宙基地",
+    "TYMSC": "バイコヌール宇宙基地",
+
+    // 海上・その他
+    "SEAL":  "シーローンチ海上発射施設",
+    "SUBL":  "潜水艦発射",
+    "UNK":   "不明"
+};
+
+
+function launchSiteName(code) {
+
+    if (!code) {
+        return "不明";
+    }
+
+    const key =
+        String(code).trim().toUpperCase();
+
+    const name =
+        LAUNCH_SITES[key];
+
+    if (name) {
+        return name + "（" + key + "）";
+    }
+
+    // 未登録コードでも略号自体は消さない
+    return key;
+}
+
 
 function catOf(r) {
 
@@ -81,9 +127,14 @@ function launchAgeOf(date) {
         Math.floor(days / 365.2425);
 
     const remainDays =
-        Math.floor(days - years * 365.2425);
+        Math.floor(
+            days - years * 365.2425
+        );
 
-    return years + "年 " + remainDays + "日";
+    return years +
+        "年 " +
+        remainDays +
+        "日";
 }
 
 
@@ -112,7 +163,9 @@ function ageOf(epochIso) {
         Math.floor(totalMinutes / 1440);
 
     const hours =
-        Math.floor((totalMinutes % 1440) / 60);
+        Math.floor(
+            (totalMinutes % 1440) / 60
+        );
 
     const minutes =
         totalMinutes % 60;
@@ -124,8 +177,10 @@ function ageOf(epochIso) {
     }
 
     text +=
-        hours + "時間" +
-        minutes + "分";
+        hours +
+        "時間" +
+        minutes +
+        "分";
 
     return future
         ? "未来 " + text
@@ -147,7 +202,8 @@ function freshnessOf(epochIso) {
     }
 
     const ageHours =
-        (Date.now() - epoch.getTime()) / 3600000;
+        (Date.now() - epoch.getTime())
+        / 3600000;
 
 
     if (ageHours < 24) {
@@ -188,7 +244,8 @@ function freshnessOf(epochIso) {
 function popOf(r) {
 
     const c = catOf(r);
-    const fresh = freshnessOf(r.epoch_iso);
+    const fresh =
+        freshnessOf(r.epoch_iso);
 
     return (
         "<b>" + r.name + "</b><br>" +
@@ -220,33 +277,48 @@ function popOf(r) {
         "<hr>" +
 
         "🚀 <b>打上げ日：</b>" +
-        formatLaunchDate(r.launch_date) + "<br>" +
+        formatLaunchDate(
+            r.launch_date
+        ) +
+        "<br>" +
 
         "📍 <b>打上げ場所：</b>" +
-        (r.launch_site || "不明") + "<br>" +
+        launchSiteName(
+            r.launch_site
+        ) +
+        "<br>" +
 
         "🛰 <b>打上げから：</b>" +
-        launchAgeOf(r.launch_date) + "<br>" +
+        launchAgeOf(
+            r.launch_date
+        ) +
+        "<br>" +
 
         "<hr>" +
 
         "<b>TLEエポック：</b>" +
-        r.epoch_day + "<br>" +
+        r.epoch_day +
+        "<br>" +
 
         "<b>エポック日時：</b>" +
-        r.epoch_utc + "<br>" +
+        r.epoch_utc +
+        "<br>" +
 
         "<b>経過時間：</b>" +
-        ageOf(r.epoch_iso) + "<br>" +
+        ageOf(r.epoch_iso) +
+        "<br>" +
 
         "<b>TLE鮮度：</b>" +
 
         "<span style='" +
         "font-weight:bold;" +
-        "color:" + fresh.color + ";" +
+        "color:" +
+        fresh.color +
+        ";" +
         "'>" +
 
-        fresh.icon + " " +
+        fresh.icon +
+        " " +
         fresh.text +
 
         "</span><br>" +
@@ -254,7 +326,8 @@ function popOf(r) {
         "<hr>" +
 
         "<b>分類：</b>" +
-        c[1] + "<br>" +
+        c[1] +
+        "<br>" +
 
         "<b>任務メモ：</b>" +
         c[2]
@@ -301,8 +374,10 @@ legend.onAdd = function() {
     div.style.background = "white";
     div.style.padding = "10px";
     div.style.borderRadius = "8px";
+
     div.style.boxShadow =
         "0 1px 5px rgba(0,0,0,0.3)";
+
     div.style.fontSize = "13px";
 
     div.innerHTML =
