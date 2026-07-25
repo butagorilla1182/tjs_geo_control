@@ -76,9 +76,46 @@ body {
     font-size: 13px;
 }
 
+
+/* 地図を少し広く */
 #map {
-    height: 72vh;
-    width: 100vw;
+    height: 82vh;
+    width: 100%;
+}
+
+
+/* ==========================================
+   衛星詳細ポップアップ
+
+   ポップアップ自体を巨大化させず、
+   中身だけ指でスクロールする
+   ========================================== */
+
+.leaflet-popup {
+    max-width: 92vw;
+}
+
+.leaflet-popup-content-wrapper {
+    max-width: 420px;
+}
+
+.leaflet-popup-content {
+    max-height: 300px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    margin: 12px 18px;
+}
+
+
+/* スクロールバーを少し細く */
+.leaflet-popup-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.leaflet-popup-content::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 5px;
 }
 
 </style>
@@ -159,54 +196,25 @@ L.tileLayer(
 const LAUNCH_SITES = {
 
     // 中国
-    "WSC":
-        "文昌衛星発射場",
-
-    "XICLF":
-        "西昌衛星発射センター",
-
-    "JSC":
-        "酒泉衛星発射センター",
-
-    "TAISC":
-        "太原衛星発射センター",
-
-    "SCSLA":
-        "南シナ海打上げ区域",
-
-    "YSLA":
-        "黄海打上げ区域",
-
+    "WSC": "文昌衛星発射場",
+    "XICLF": "西昌衛星発射センター",
+    "JSC": "酒泉衛星発射センター",
+    "TAISC": "太原衛星発射センター",
+    "SCSLA": "南シナ海打上げ区域",
+    "YSLA": "黄海打上げ区域",
 
     // ロシア・旧ソ連圏
-    "DLS":
-        "ドンバロフスキー発射場",
-
-    "PLMSC":
-        "プレセツク宇宙基地",
-
-    "KYMSC":
-        "カプースチン・ヤール",
-
-    "VOSTO":
-        "ボストーチヌイ宇宙基地",
-
-    "SVOBO":
-        "スヴォボードヌイ宇宙基地",
-
-    "TYMSC":
-        "バイコヌール宇宙基地",
-
+    "DLS": "ドンバロフスキー発射場",
+    "PLMSC": "プレセツク宇宙基地",
+    "KYMSC": "カプースチン・ヤール",
+    "VOSTO": "ボストーチヌイ宇宙基地",
+    "SVOBO": "スヴォボードヌイ宇宙基地",
+    "TYMSC": "バイコヌール宇宙基地",
 
     // その他
-    "SEAL":
-        "シーローンチ海上発射施設",
-
-    "SUBL":
-        "潜水艦発射",
-
-    "UNK":
-        "不明"
+    "SEAL": "シーローンチ海上発射施設",
+    "SUBL": "潜水艦発射",
+    "UNK": "不明"
 };
 
 
@@ -226,6 +234,7 @@ function launchSiteName(code) {
         LAUNCH_SITES[key];
 
     if (name) {
+
         return (
             name +
             "（" +
@@ -347,10 +356,7 @@ function launchAgeOf(date) {
 
 
     if (days < 365) {
-        return (
-            days +
-            "日"
-        );
+        return days + "日";
     }
 
 
@@ -408,9 +414,7 @@ function ageOf(epochIso) {
 
 
     diff =
-        Math.abs(
-            diff
-        );
+        Math.abs(diff);
 
 
     const totalMinutes =
@@ -427,10 +431,7 @@ function ageOf(epochIso) {
 
     const hours =
         Math.floor(
-            (
-                totalMinutes %
-                1440
-            ) / 60
+            (totalMinutes % 1440) / 60
         );
 
 
@@ -716,31 +717,26 @@ data.forEach(r => {
 
             {
                 radius: 8,
-
-                color:
-                    "#1a202c",
-
+                color: "#1a202c",
                 weight: 1,
-
-                fillColor:
-                    c[0],
-
-                fillOpacity:
-                    0.9
+                fillColor: c[0],
+                fillOpacity: 0.9
             }
         )
 
         .addTo(map)
 
         .bindPopup(
-            popOf(r)
+            popOf(r),
+            {
+                maxWidth: 420
+            }
         );
 
 
     satelliteMarkers.push({
 
         data: r,
-
         marker: marker
     });
 });
@@ -792,13 +788,9 @@ function searchSatellite() {
         );
 
 
-    const raw =
-        input.value.trim();
-
-
     const query =
         normalizeSearch(
-            raw
+            input.value.trim()
         );
 
 
@@ -811,11 +803,6 @@ function searchSatellite() {
     }
 
 
-
-    /* -------------------------
-       完全一致
-       ------------------------- */
-
     let found =
         satelliteMarkers.find(
             item => {
@@ -825,12 +812,10 @@ function searchSatellite() {
                         item.data.name
                     );
 
-
                 const norad =
                     normalizeSearch(
                         item.data.norad
                     );
-
 
                 return (
                     name === query ||
@@ -839,11 +824,6 @@ function searchSatellite() {
             }
         );
 
-
-
-    /* -------------------------
-       部分一致
-       ------------------------- */
 
     if (!found) {
 
@@ -856,26 +836,18 @@ function searchSatellite() {
                             item.data.name
                         );
 
-
                     const norad =
                         normalizeSearch(
                             item.data.norad
                         );
 
-
                     return (
-                        name.includes(
-                            query
-                        ) ||
-
-                        norad.includes(
-                            query
-                        )
+                        name.includes(query) ||
+                        norad.includes(query)
                     );
                 }
             );
     }
-
 
 
     if (!found) {
@@ -887,7 +859,6 @@ function searchSatellite() {
     }
 
 
-
     const r =
         found.data;
 
@@ -895,11 +866,6 @@ function searchSatellite() {
     const marker =
         found.marker;
 
-
-
-    /* -------------------------
-       衛星位置へ移動
-       ------------------------- */
 
     map.setView(
 
@@ -921,18 +887,8 @@ function searchSatellite() {
     );
 
 
-
-    /* -------------------------
-       ポップアップ表示
-       ------------------------- */
-
     marker.openPopup();
 
-
-
-    /* -------------------------
-       マーカー強調
-       ------------------------- */
 
     marker.setRadius(
         14
@@ -950,7 +906,6 @@ function searchSatellite() {
 
         2500
     );
-
 
 
     result.textContent =
@@ -1029,10 +984,6 @@ legend.onAdd =
             );
 
 
-        /*
-         * ポップアップ時に
-         * このカテゴリだけ隠すためのID
-         */
         div.id =
             "satLegend";
 
@@ -1073,8 +1024,7 @@ legend.addTo(map);
 
 
 /* =========================================================
-   ポップアップ表示中は
-   衛星カテゴリを自動的に隠す
+   詳細を開いている間はカテゴリを隠す
    ========================================================= */
 
 map.on(
@@ -1099,8 +1049,7 @@ map.on(
 
 
 /* =========================================================
-   ポップアップを閉じたら
-   衛星カテゴリを復活
+   詳細を閉じたらカテゴリ復活
    ========================================================= */
 
 map.on(
