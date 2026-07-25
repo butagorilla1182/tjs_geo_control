@@ -1,306 +1,105 @@
+from skyfield.api import load, EarthSatellite
+from datetime import datetime, timedelta, timezone
 import csv
-import json
 
-rows = list(
-    csv.DictReader(
-        open("tjs_geo.csv", encoding="utf-8")
+tle_path = "tjs_clean.tle"
+out_path = "tjs_geo.csv"
+
+ts = load.timescale()
+t = ts.now()
+rows = []
+
+
+def parse_tle_epoch(line1):
+    # TLE 1行目のエポック部分：YYDDD.DDDDDDDD
+    raw = line1[18:32].strip()
+
+    yy = int(raw[:2])
+    day = float(raw[2:])
+
+    # NORADの年表記
+    year = 2000 + yy if yy < 57 else 1900 + yy
+
+    epoch_dt = (
+        datetime(year, 1, 1, tzinfo=timezone.utc)
+        + timedelta(days=day - 1)
     )
-)
 
-markers = json.dumps(
-    rows,
-    ensure_ascii=False
-)
-
-parts = []
-
-parts.append(
-    '<html><head><meta charset="utf-8"><title>TJS GEO Map</title>'
-)
-
-parts.append(
-    '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
-)
-
-parts.append(
-    '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">'
-)
-
-parts.append(
-    '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>'
-)
-
-parts.append(
-    '<style>'
-    'body{margin:0;font-family:sans-serif}'
-    '.bar{padding:12px;background:#f7f3ea}'
-    '#map{height:78vh;width:100vw}'
-    '</style></head><body>'
-)
-
-parts.append(
-    f'<div class="bar">'
-    f'<b>TJS GEO Map</b><br>'
-    f'CelesTrak GEO TLEから抽出したTJSの地図表示<br>'
-    f'表示衛星数：{len(rows)} 機'
-    f'</div>'
-)
-
-parts.append('<div id="map"></div>')
-parts.append('<script>')
-
-parts.append(
-    'const data = ' + markers + ';'
-)
-
-parts.append(
-    'const map = L.map("map").setView([0,140],2);'
-)
-
-parts.append(
-    'L.tileLayer('
-    '"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",'
-    '{maxZoom:6, attribution:"OpenStreetMap"}'
-    ').addTo(map);'
-)
-
-parts.append(
-'''
-function catOf(r) {
-
-    const n = String(r.name || "").toUpperCase();
-    const lat = Math.abs(parseFloat(r.lat || "0"));
-
-    if (lat > 3)
-        return [
-            "#dd6b20",
-            "移動中・傾斜大",
-            "GEO付近だが南北に大きく振れている。移動中・静止化途中・傾斜軌道の可能性"
-        ];
-
-    if (
-        n.includes("TJS") ||
-        n.includes("TONGXIN")
-    )
-        return [
-            "#2b6cb0",
-            "TJS・通信技術試験",
-            "中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"
-        ];
-
-    if (
-        n.includes("CHINASAT") ||
-        n.includes("ZHONGXING") ||
-        n.includes("ZX-") ||
-        n.includes("TIANLIAN") ||
-        n.includes("APSTAR")
-    )
-        return [
-            "#c53030",
-            "PRC通信・中継",
-            "中国系の通信・データ中継衛星候補"
-        ];
-
-    if (
-        n.includes("LUCH") ||
-        n.includes("EXPRESS") ||
-        n.includes("EKSPRESS") ||
-        n.includes("YAMAL") ||
-        n.includes("RADUGA") ||
-        n.includes("GARPUN")
-    )
-        return [
-            "#6b46c1",
-            "CIS/Russia系",
-            "ロシア・旧ソ連系の通信またはデータ中継衛星候補"
-        ];
-
-    if (
-        n.includes("ELEKTRO") ||
-        n.includes("HIMAWARI") ||
-        n.includes("GOES") ||
-        n.includes("METEOSAT") ||
-        n.includes("FENGYUN") ||
-        n.includes("FY-")
-    )
-        return [
-            "#2f855a",
-            "気象・観測",
-            "静止気象・地球観測系"
-        ];
-
-    return [
-        "#718096",
-        "未整理",
-        "用途未整理。公開情報または自分メモで追記"
-    ];
-}
-
-
-function ageOf(epochIso) {
-
-    const epoch = new Date(epochIso);
-
-    if (Number.isNaN(epoch.getTime())) {
-        return "不明";
+    return {
+        "epoch_raw": raw,
+        "epoch_day": f"{year}年{int(day)}日目",
+        "epoch_utc": epoch_dt.strftime("%Y/%m/%d %H:%M:%S UTC"),
+        "epoch_iso": epoch_dt.isoformat().replace("+00:00", "Z"),
     }
 
-    let diff = Date.now() - epoch.getTime();
 
-    const future = diff < 0;
-
-    diff = Math.abs(diff);
-
-    const totalMinutes =
-        Math.floor(diff / 60000);
-
-    const days =
-        Math.floor(totalMinutes / 1440);
-
-    const hours =
-        Math.floor((totalMinutes % 1440) / 60);
-
-    const minutes =
-        totalMinutes % 60;
-
-    let text = "";
-
-    if (days > 0) {
-        text += days + "日 ";
-    }
-
-    text += hours + "時間" + minutes + "分";
-
-    if (future) {
-        return "未来 " + text;
-    }
-
-    return text;
-}
+with open(tle_path, encoding="utf-8") as f:
+    lines = [line.strip() for line in f if line.strip()]
 
 
-function popOf(r) {
+for i in range(0, len(lines), 3):
+    name = lines[i]
+    line1 = lines[i + 1]
+    line2 = lines[i + 2]
 
-    const c = catOf(r);
+    sat = EarthSatellite(line1, line2, name, ts)
 
-    return (
-        "<b>" + r.name + "</b><br>" +
+    geocentric = sat.at(t)
+    subpoint = geocentric.subpoint()
 
-        "<span style='" +
-        "display:inline-block;" +
-        "margin:4px 0;" +
-        "padding:2px 8px;" +
-        "border-radius:10px;" +
-        "background:" + c[0] + ";" +
-        "color:white;" +
-        "font-size:12px;" +
-        "'>" +
-        c[1] +
-        "</span><br>" +
+    lat = subpoint.latitude.degrees
+    lon = subpoint.longitude.degrees
+    alt_km = subpoint.elevation.km
 
-        "<b>NORAD ID：</b>" +
-        r.norad + "<br>" +
+    norad = line1[2:7].strip()
 
-        "<b>緯度：</b>" +
-        r.lat + "°<br>" +
+    epoch = parse_tle_epoch(line1)
 
-        "<b>経度：</b>" +
-        r.lon + "°<br>" +
+    rows.append({
+        "name": name,
+        "norad": norad,
+        "lat": round(lat, 4),
+        "lon": round(lon, 4),
+        "alt_km": round(alt_km, 1),
 
-        "<b>高度：</b>" +
-        r.alt_km + " km<br>" +
-
-        "<hr>" +
-
-        "<b>TLEエポック：</b>" +
-        r.epoch_day + "<br>" +
-
-        "<b>エポック日時：</b>" +
-        r.epoch_utc + "<br>" +
-
-        "<b>経過時間：</b>" +
-        ageOf(r.epoch_iso) + "<br>" +
-
-        "<hr>" +
-
-        "<b>分類：</b>" +
-        c[1] + "<br>" +
-
-        "<b>任務メモ：</b>" +
-        c[2]
-    );
-}
+        "epoch_raw": epoch["epoch_raw"],
+        "epoch_day": epoch["epoch_day"],
+        "epoch_utc": epoch["epoch_utc"],
+        "epoch_iso": epoch["epoch_iso"],
+    })
 
 
-data.forEach(r => {
+rows.sort(key=lambda r: r["lon"])
 
-    const c = catOf(r);
 
-    L.circleMarker(
-        [
-            parseFloat(r.lat),
-            parseFloat(r.lon)
+with open(out_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.DictWriter(
+        f,
+        fieldnames=[
+            "name",
+            "norad",
+            "lat",
+            "lon",
+            "alt_km",
+            "epoch_raw",
+            "epoch_day",
+            "epoch_utc",
+            "epoch_iso",
         ],
-        {
-            radius: 8,
-            color: "#1a202c",
-            weight: 1,
-            fillColor: c[0],
-            fillOpacity: 0.9
-        }
     )
-    .addTo(map)
-    .bindPopup(popOf(r));
-});
+
+    writer.writeheader()
+    writer.writerows(rows)
 
 
-const legend =
-    L.control({
-        position: "bottomleft"
-    });
+print("saved", out_path)
+print("count", len(rows))
 
-
-legend.onAdd = function() {
-
-    const div =
-        L.DomUtil.create(
-            "div",
-            "info legend"
-        );
-
-    div.style.background = "white";
-    div.style.padding = "10px";
-    div.style.borderRadius = "8px";
-    div.style.boxShadow =
-        "0 1px 5px rgba(0,0,0,0.3)";
-    div.style.fontSize = "13px";
-
-    div.innerHTML =
-        "<b>衛星カテゴリ</b><br>" +
-        "<div>🔵 TJS・通信技術試験</div>" +
-        "<div>🔴 PRC通信・中継</div>" +
-        "<div>🟣 CIS/Russia系</div>" +
-        "<div>🟢 気象・観測</div>" +
-        "<div>🟠 移動中・傾斜大</div>" +
-        "<div>⚫ 未整理</div>";
-
-    return div;
-};
-
-
-legend.addTo(map);
-'''
-)
-
-parts.append('</script></body></html>')
-
-open(
-    "tjs_map.html",
-    "w",
-    encoding="utf-8"
-).write(
-    "\n".join(parts)
-)
-
-print("saved tjs_map.html")
-print(f"count: {len(rows)}")
+for r in rows:
+    print(
+        r["name"],
+        r["norad"],
+        r["lon"],
+        r["epoch_day"],
+        r["epoch_utc"],
+    )
