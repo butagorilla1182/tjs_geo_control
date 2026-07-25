@@ -46,9 +46,46 @@ body {
     font-size: 13px;
 }
 
+
+/* 地図を少し広く */
 #map {
-    height: 72vh;
-    width: 100vw;
+    height: 82vh;
+    width: 100%;
+}
+
+
+/* ==========================================
+   衛星詳細ポップアップ
+
+   ポップアップ自体を巨大化させず、
+   中身だけ指でスクロールする
+   ========================================== */
+
+.leaflet-popup {
+    max-width: 92vw;
+}
+
+.leaflet-popup-content-wrapper {
+    max-width: 420px;
+}
+
+.leaflet-popup-content {
+    max-height: 300px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    margin: 12px 18px;
+}
+
+
+/* スクロールバーを少し細く */
+.leaflet-popup-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.leaflet-popup-content::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 5px;
 }
 
 </style>
@@ -87,7 +124,7 @@ body {
 
 <div id="map"></div>
 <script>
-const data = [{"name": "TJS-7", "norad": "49115", "lat": "-0.051", "lon": "-99.4378", "alt_km": "35782.3", "launch_date": "2021-08-24", "launch_site": "XICLF", "epoch_raw": "26205.59061440", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:10:29 UTC", "epoch_iso": "2026-07-24T14:10:29.084160Z"}, {"name": "TJS-14", "norad": "62804", "lat": "-0.687", "lon": "18.3469", "alt_km": "35778.9", "launch_date": "2025-01-23", "launch_site": "XICLF", "epoch_raw": "26205.61392785", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:44:03 UTC", "epoch_iso": "2026-07-24T14:44:03.366240Z"}, {"name": "TJS-20", "norad": "66142", "lat": "-3.3395", "lon": "62.5418", "alt_km": "35798.3", "launch_date": "2025-10-23", "launch_site": "WSC", "epoch_raw": "26205.84489024", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 20:16:38 UTC", "epoch_iso": "2026-07-24T20:16:38.516736Z"}, {"name": "TJS-22", "norad": "66990", "lat": "-0.5479", "lon": "66.4718", "alt_km": "35774.3", "launch_date": "2025-12-09", "launch_site": "XICLF", "epoch_raw": "26204.77737316", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 18:39:25 UTC", "epoch_iso": "2026-07-23T18:39:25.041024Z"}, {"name": "TJS-2", "norad": "41911", "lat": "-0.0228", "lon": "66.5597", "alt_km": "35786.0", "launch_date": "2017-01-05", "launch_site": "XICLF", "epoch_raw": "26205.19628041", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 04:42:38 UTC", "epoch_iso": "2026-07-24T04:42:38.627424Z"}, {"name": "TJS-4", "norad": "44637", "lat": "0.0106", "lon": "83.6148", "alt_km": "35785.3", "launch_date": "2019-10-17", "launch_site": "XICLF", "epoch_raw": "26206.05457446", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 01:18:35 UTC", "epoch_iso": "2026-07-25T01:18:35.233344Z"}, {"name": "TJS-24", "norad": "69235", "lat": "-0.0461", "lon": "90.3292", "alt_km": "35785.8", "launch_date": "2026-05-26", "launch_site": "WSC", "epoch_raw": "26205.72383284", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:22:19 UTC", "epoch_iso": "2026-07-24T17:22:19.157376Z"}, {"name": "TJS-10", "norad": "58204", "lat": "-1.3918", "lon": "92.4385", "alt_km": "35789.6", "launch_date": "2023-11-03", "launch_site": "WSC", "epoch_raw": "26205.72039067", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:17:21 UTC", "epoch_iso": "2026-07-24T17:17:21.753888Z"}, {"name": "TJS-15", "norad": "63157", "lat": "-0.1649", "lon": "94.3641", "alt_km": "35786.5", "launch_date": "2025-03-09", "launch_site": "XICLF", "epoch_raw": "26205.59406176", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:15:26 UTC", "epoch_iso": "2026-07-24T14:15:26.936064Z"}, {"name": "TJS-5", "norad": "44978", "lat": "-0.085", "lon": "107.4151", "alt_km": "35800.1", "launch_date": "2020-01-07", "launch_site": "XICLF", "epoch_raw": "26206.56572399", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 13:34:38 UTC", "epoch_iso": "2026-07-25T13:34:38.552736Z"}, {"name": "TJS-26A", "norad": "69674", "lat": "-2.0273", "lon": "107.6154", "alt_km": "35771.1", "launch_date": "2026-06-23", "launch_site": "WSC", "epoch_raw": "26205.63141264", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 15:09:14 UTC", "epoch_iso": "2026-07-24T15:09:14.052096Z"}, {"name": "TJS-11", "norad": "59020", "lat": "-1.1745", "lon": "112.5945", "alt_km": "35796.0", "launch_date": "2024-02-23", "launch_site": "WSC", "epoch_raw": "26204.84843844", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 20:21:45 UTC", "epoch_iso": "2026-07-23T20:21:45.081216Z"}, {"name": "TJS-25", "norad": "69474", "lat": "-1.1808", "lon": "120.2842", "alt_km": "35782.3", "launch_date": "2026-06-11", "launch_site": "WSC", "epoch_raw": "26205.27762468", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 06:39:46 UTC", "epoch_iso": "2026-07-24T06:39:46.772352Z"}, {"name": "TJS-9", "norad": "50574", "lat": "-0.079", "lon": "137.1925", "alt_km": "35789.3", "launch_date": "2021-12-29", "launch_site": "XICLF", "epoch_raw": "26205.51781093", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:25:38 UTC", "epoch_iso": "2026-07-24T12:25:38.864352Z"}, {"name": "TJS-19", "norad": "63924", "lat": "1.1935", "lon": "141.2604", "alt_km": "35798.1", "launch_date": "2025-05-12", "launch_site": "XICLF", "epoch_raw": "26205.76021486", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:14:42 UTC", "epoch_iso": "2026-07-24T18:14:42.563904Z"}, {"name": "TJS-12", "norad": "62374", "lat": "0.3754", "lon": "146.481", "alt_km": "35783.1", "launch_date": "2024-12-20", "launch_site": "XICLF", "epoch_raw": "26205.92446692", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 22:11:13 UTC", "epoch_iso": "2026-07-24T22:11:13.941888Z"}, {"name": "TJS-3", "norad": "43874", "lat": "-2.661", "lon": "148.1969", "alt_km": "35798.9", "launch_date": "2018-12-24", "launch_site": "XICLF", "epoch_raw": "26205.71094317", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:03:45 UTC", "epoch_iso": "2026-07-24T17:03:45.489888Z"}, {"name": "TJS-1", "norad": "40892", "lat": "-0.439", "lon": "154.9596", "alt_km": "35795.7", "launch_date": "2015-09-12", "launch_site": "XICLF", "epoch_raw": "26205.51225332", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:17:38 UTC", "epoch_iso": "2026-07-24T12:17:38.686848Z"}, {"name": "TJS-16", "norad": "63397", "lat": "-1.2012", "lon": "160.5994", "alt_km": "35777.1", "launch_date": "2025-03-29", "launch_site": "WSC", "epoch_raw": "26205.74365328", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:50:51 UTC", "epoch_iso": "2026-07-24T17:50:51.643392Z"}, {"name": "TJS-17", "norad": "63524", "lat": "-1.1573", "lon": "164.4907", "alt_km": "35783.3", "launch_date": "2025-04-10", "launch_site": "XICLF", "epoch_raw": "26205.76044573", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:15:02 UTC", "epoch_iso": "2026-07-24T18:15:02.511072Z"}, {"name": "TJS-23", "norad": "67226", "lat": "5.3585", "lon": "175.3805", "alt_km": "35797.5", "launch_date": "2025-12-20", "launch_site": "WSC", "epoch_raw": "26205.49937446", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 11:59:05 UTC", "epoch_iso": "2026-07-24T11:59:05.953344Z"}, {"name": "TJS-6", "norad": "47613", "lat": "0.1248", "lon": "178.4743", "alt_km": "35793.4", "launch_date": "2021-02-04", "launch_site": "XICLF", "epoch_raw": "26205.40432793", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 09:42:13 UTC", "epoch_iso": "2026-07-24T09:42:13.933152Z"}];
+const data = [{"name": "TJS-7", "norad": "49115", "lat": "-0.0598", "lon": "-99.4375", "alt_km": "35782.7", "launch_date": "2021-08-24", "launch_site": "XICLF", "epoch_raw": "26205.59061440", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:10:29 UTC", "epoch_iso": "2026-07-24T14:10:29.084160Z"}, {"name": "TJS-14", "norad": "62804", "lat": "-0.6833", "lon": "18.3478", "alt_km": "35778.8", "launch_date": "2025-01-23", "launch_site": "XICLF", "epoch_raw": "26205.61392785", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:44:03 UTC", "epoch_iso": "2026-07-24T14:44:03.366240Z"}, {"name": "TJS-20", "norad": "66142", "lat": "-3.178", "lon": "62.538", "alt_km": "35798.7", "launch_date": "2025-10-23", "launch_site": "WSC", "epoch_raw": "26205.84489024", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 20:16:38 UTC", "epoch_iso": "2026-07-24T20:16:38.516736Z"}, {"name": "TJS-22", "norad": "66990", "lat": "-0.4978", "lon": "66.4725", "alt_km": "35774.5", "launch_date": "2025-12-09", "launch_site": "XICLF", "epoch_raw": "26204.77737316", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 18:39:25 UTC", "epoch_iso": "2026-07-23T18:39:25.041024Z"}, {"name": "TJS-2", "norad": "41911", "lat": "-0.0586", "lon": "66.5594", "alt_km": "35786.1", "launch_date": "2017-01-05", "launch_site": "XICLF", "epoch_raw": "26205.19628041", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 04:42:38 UTC", "epoch_iso": "2026-07-24T04:42:38.627424Z"}, {"name": "TJS-4", "norad": "44637", "lat": "0.0129", "lon": "83.6149", "alt_km": "35785.3", "launch_date": "2019-10-17", "launch_site": "XICLF", "epoch_raw": "26206.05457446", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 01:18:35 UTC", "epoch_iso": "2026-07-25T01:18:35.233344Z"}, {"name": "TJS-24", "norad": "69235", "lat": "-0.0502", "lon": "90.3292", "alt_km": "35785.9", "launch_date": "2026-05-26", "launch_site": "WSC", "epoch_raw": "26205.72383284", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:22:19 UTC", "epoch_iso": "2026-07-24T17:22:19.157376Z"}, {"name": "TJS-10", "norad": "58204", "lat": "-1.4764", "lon": "92.4372", "alt_km": "35790.2", "launch_date": "2023-11-03", "launch_site": "WSC", "epoch_raw": "26205.72039067", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:17:21 UTC", "epoch_iso": "2026-07-24T17:17:21.753888Z"}, {"name": "TJS-15", "norad": "63157", "lat": "-0.1756", "lon": "94.3641", "alt_km": "35786.0", "launch_date": "2025-03-09", "launch_site": "XICLF", "epoch_raw": "26205.59406176", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 14:15:26 UTC", "epoch_iso": "2026-07-24T14:15:26.936064Z"}, {"name": "TJS-5", "norad": "44978", "lat": "-0.0876", "lon": "107.4137", "alt_km": "35798.9", "launch_date": "2020-01-07", "launch_site": "XICLF", "epoch_raw": "26206.56572399", "epoch_day": "2026年206日目", "epoch_utc": "2026/07/25 13:34:38 UTC", "epoch_iso": "2026-07-25T13:34:38.552736Z"}, {"name": "TJS-26A", "norad": "69674", "lat": "-1.7759", "lon": "107.6035", "alt_km": "35771.0", "launch_date": "2026-06-23", "launch_site": "WSC", "epoch_raw": "26205.63141264", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 15:09:14 UTC", "epoch_iso": "2026-07-24T15:09:14.052096Z"}, {"name": "TJS-11", "norad": "59020", "lat": "-1.0235", "lon": "112.5886", "alt_km": "35795.9", "launch_date": "2024-02-23", "launch_site": "WSC", "epoch_raw": "26204.84843844", "epoch_day": "2026年204日目", "epoch_utc": "2026/07/23 20:21:45 UTC", "epoch_iso": "2026-07-23T20:21:45.081216Z"}, {"name": "TJS-25", "norad": "69474", "lat": "-0.9605", "lon": "120.2736", "alt_km": "35782.6", "launch_date": "2026-06-11", "launch_site": "WSC", "epoch_raw": "26205.27762468", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 06:39:46 UTC", "epoch_iso": "2026-07-24T06:39:46.772352Z"}, {"name": "TJS-9", "norad": "50574", "lat": "-0.0802", "lon": "137.1922", "alt_km": "35788.9", "launch_date": "2021-12-29", "launch_site": "XICLF", "epoch_raw": "26205.51781093", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:25:38 UTC", "epoch_iso": "2026-07-24T12:25:38.864352Z"}, {"name": "TJS-19", "norad": "63924", "lat": "1.3055", "lon": "141.2567", "alt_km": "35798.6", "launch_date": "2025-05-12", "launch_site": "XICLF", "epoch_raw": "26205.76021486", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:14:42 UTC", "epoch_iso": "2026-07-24T18:14:42.563904Z"}, {"name": "TJS-12", "norad": "62374", "lat": "0.392", "lon": "146.4813", "alt_km": "35782.8", "launch_date": "2024-12-20", "launch_site": "XICLF", "epoch_raw": "26205.92446692", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 22:11:13 UTC", "epoch_iso": "2026-07-24T22:11:13.941888Z"}, {"name": "TJS-3", "norad": "43874", "lat": "-2.664", "lon": "148.198", "alt_km": "35798.8", "launch_date": "2018-12-24", "launch_site": "XICLF", "epoch_raw": "26205.71094317", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:03:45 UTC", "epoch_iso": "2026-07-24T17:03:45.489888Z"}, {"name": "TJS-1", "norad": "40892", "lat": "-0.4384", "lon": "154.9587", "alt_km": "35794.9", "launch_date": "2015-09-12", "launch_site": "XICLF", "epoch_raw": "26205.51225332", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 12:17:38 UTC", "epoch_iso": "2026-07-24T12:17:38.686848Z"}, {"name": "TJS-16", "norad": "63397", "lat": "-1.1934", "lon": "160.6008", "alt_km": "35777.0", "launch_date": "2025-03-29", "launch_site": "WSC", "epoch_raw": "26205.74365328", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 17:50:51 UTC", "epoch_iso": "2026-07-24T17:50:51.643392Z"}, {"name": "TJS-17", "norad": "63524", "lat": "-1.1476", "lon": "164.4914", "alt_km": "35783.2", "launch_date": "2025-04-10", "launch_site": "XICLF", "epoch_raw": "26205.76044573", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 18:15:02 UTC", "epoch_iso": "2026-07-24T18:15:02.511072Z"}, {"name": "TJS-23", "norad": "67226", "lat": "5.4022", "lon": "175.3884", "alt_km": "35797.0", "launch_date": "2025-12-20", "launch_site": "WSC", "epoch_raw": "26205.49937446", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 11:59:05 UTC", "epoch_iso": "2026-07-24T11:59:05.953344Z"}, {"name": "TJS-6", "norad": "47613", "lat": "0.123", "lon": "178.4736", "alt_km": "35793.0", "launch_date": "2021-02-04", "launch_site": "XICLF", "epoch_raw": "26205.40432793", "epoch_day": "2026年205日目", "epoch_utc": "2026/07/24 09:42:13 UTC", "epoch_iso": "2026-07-24T09:42:13.933152Z"}];
 
 
 const map =
@@ -114,54 +151,25 @@ L.tileLayer(
 const LAUNCH_SITES = {
 
     // 中国
-    "WSC":
-        "文昌衛星発射場",
-
-    "XICLF":
-        "西昌衛星発射センター",
-
-    "JSC":
-        "酒泉衛星発射センター",
-
-    "TAISC":
-        "太原衛星発射センター",
-
-    "SCSLA":
-        "南シナ海打上げ区域",
-
-    "YSLA":
-        "黄海打上げ区域",
-
+    "WSC": "文昌衛星発射場",
+    "XICLF": "西昌衛星発射センター",
+    "JSC": "酒泉衛星発射センター",
+    "TAISC": "太原衛星発射センター",
+    "SCSLA": "南シナ海打上げ区域",
+    "YSLA": "黄海打上げ区域",
 
     // ロシア・旧ソ連圏
-    "DLS":
-        "ドンバロフスキー発射場",
-
-    "PLMSC":
-        "プレセツク宇宙基地",
-
-    "KYMSC":
-        "カプースチン・ヤール",
-
-    "VOSTO":
-        "ボストーチヌイ宇宙基地",
-
-    "SVOBO":
-        "スヴォボードヌイ宇宙基地",
-
-    "TYMSC":
-        "バイコヌール宇宙基地",
-
+    "DLS": "ドンバロフスキー発射場",
+    "PLMSC": "プレセツク宇宙基地",
+    "KYMSC": "カプースチン・ヤール",
+    "VOSTO": "ボストーチヌイ宇宙基地",
+    "SVOBO": "スヴォボードヌイ宇宙基地",
+    "TYMSC": "バイコヌール宇宙基地",
 
     // その他
-    "SEAL":
-        "シーローンチ海上発射施設",
-
-    "SUBL":
-        "潜水艦発射",
-
-    "UNK":
-        "不明"
+    "SEAL": "シーローンチ海上発射施設",
+    "SUBL": "潜水艦発射",
+    "UNK": "不明"
 };
 
 
@@ -181,6 +189,7 @@ function launchSiteName(code) {
         LAUNCH_SITES[key];
 
     if (name) {
+
         return (
             name +
             "（" +
@@ -302,10 +311,7 @@ function launchAgeOf(date) {
 
 
     if (days < 365) {
-        return (
-            days +
-            "日"
-        );
+        return days + "日";
     }
 
 
@@ -363,9 +369,7 @@ function ageOf(epochIso) {
 
 
     diff =
-        Math.abs(
-            diff
-        );
+        Math.abs(diff);
 
 
     const totalMinutes =
@@ -382,10 +386,7 @@ function ageOf(epochIso) {
 
     const hours =
         Math.floor(
-            (
-                totalMinutes %
-                1440
-            ) / 60
+            (totalMinutes % 1440) / 60
         );
 
 
@@ -671,31 +672,26 @@ data.forEach(r => {
 
             {
                 radius: 8,
-
-                color:
-                    "#1a202c",
-
+                color: "#1a202c",
                 weight: 1,
-
-                fillColor:
-                    c[0],
-
-                fillOpacity:
-                    0.9
+                fillColor: c[0],
+                fillOpacity: 0.9
             }
         )
 
         .addTo(map)
 
         .bindPopup(
-            popOf(r)
+            popOf(r),
+            {
+                maxWidth: 420
+            }
         );
 
 
     satelliteMarkers.push({
 
         data: r,
-
         marker: marker
     });
 });
@@ -747,13 +743,9 @@ function searchSatellite() {
         );
 
 
-    const raw =
-        input.value.trim();
-
-
     const query =
         normalizeSearch(
-            raw
+            input.value.trim()
         );
 
 
@@ -766,11 +758,6 @@ function searchSatellite() {
     }
 
 
-
-    /* -------------------------
-       完全一致
-       ------------------------- */
-
     let found =
         satelliteMarkers.find(
             item => {
@@ -780,12 +767,10 @@ function searchSatellite() {
                         item.data.name
                     );
 
-
                 const norad =
                     normalizeSearch(
                         item.data.norad
                     );
-
 
                 return (
                     name === query ||
@@ -794,11 +779,6 @@ function searchSatellite() {
             }
         );
 
-
-
-    /* -------------------------
-       部分一致
-       ------------------------- */
 
     if (!found) {
 
@@ -811,26 +791,18 @@ function searchSatellite() {
                             item.data.name
                         );
 
-
                     const norad =
                         normalizeSearch(
                             item.data.norad
                         );
 
-
                     return (
-                        name.includes(
-                            query
-                        ) ||
-
-                        norad.includes(
-                            query
-                        )
+                        name.includes(query) ||
+                        norad.includes(query)
                     );
                 }
             );
     }
-
 
 
     if (!found) {
@@ -842,7 +814,6 @@ function searchSatellite() {
     }
 
 
-
     const r =
         found.data;
 
@@ -850,11 +821,6 @@ function searchSatellite() {
     const marker =
         found.marker;
 
-
-
-    /* -------------------------
-       衛星位置へ移動
-       ------------------------- */
 
     map.setView(
 
@@ -876,18 +842,8 @@ function searchSatellite() {
     );
 
 
-
-    /* -------------------------
-       ポップアップ表示
-       ------------------------- */
-
     marker.openPopup();
 
-
-
-    /* -------------------------
-       マーカー強調
-       ------------------------- */
 
     marker.setRadius(
         14
@@ -905,7 +861,6 @@ function searchSatellite() {
 
         2500
     );
-
 
 
     result.textContent =
@@ -984,10 +939,6 @@ legend.onAdd =
             );
 
 
-        /*
-         * ポップアップ時に
-         * このカテゴリだけ隠すためのID
-         */
         div.id =
             "satLegend";
 
@@ -1028,8 +979,7 @@ legend.addTo(map);
 
 
 /* =========================================================
-   ポップアップ表示中は
-   衛星カテゴリを自動的に隠す
+   詳細を開いている間はカテゴリを隠す
    ========================================================= */
 
 map.on(
@@ -1054,8 +1004,7 @@ map.on(
 
 
 /* =========================================================
-   ポップアップを閉じたら
-   衛星カテゴリを復活
+   詳細を閉じたらカテゴリ復活
    ========================================================= */
 
 map.on(
