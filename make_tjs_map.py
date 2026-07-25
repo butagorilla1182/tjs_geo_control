@@ -66,7 +66,53 @@ parts.append(
 )
 
 parts.append(
-'''
+r'''
+const LAUNCH_SITES = {
+
+    // 中国
+    "WSC":   "文昌衛星発射場",
+    "XICLF": "西昌衛星発射センター",
+    "JSC":   "酒泉衛星発射センター",
+    "TAISC": "太原衛星発射センター",
+    "SCSLA": "南シナ海打上げ区域",
+    "YSLA":  "黄海打上げ区域",
+
+    // ロシア・旧ソ連圏
+    "DLS":   "ドンバロフスキー発射場",
+    "PLMSC": "プレセツク宇宙基地",
+    "KYMSC": "カプースチン・ヤール",
+    "VOSTO": "ボストーチヌイ宇宙基地",
+    "SVOBO": "スヴォボードヌイ宇宙基地",
+    "TYMSC": "バイコヌール宇宙基地",
+
+    // 海上・その他
+    "SEAL":  "シーローンチ海上発射施設",
+    "SUBL":  "潜水艦発射",
+    "UNK":   "不明"
+};
+
+
+function launchSiteName(code) {
+
+    if (!code) {
+        return "不明";
+    }
+
+    const key =
+        String(code).trim().toUpperCase();
+
+    const name =
+        LAUNCH_SITES[key];
+
+    if (name) {
+        return name + "（" + key + "）";
+    }
+
+    // 未登録コードでも略号自体は消さない
+    return key;
+}
+
+
 function catOf(r) {
 
     const n = String(r.name || "").toUpperCase();
@@ -138,9 +184,14 @@ function launchAgeOf(date) {
         Math.floor(days / 365.2425);
 
     const remainDays =
-        Math.floor(days - years * 365.2425);
+        Math.floor(
+            days - years * 365.2425
+        );
 
-    return years + "年 " + remainDays + "日";
+    return years +
+        "年 " +
+        remainDays +
+        "日";
 }
 
 
@@ -169,7 +220,9 @@ function ageOf(epochIso) {
         Math.floor(totalMinutes / 1440);
 
     const hours =
-        Math.floor((totalMinutes % 1440) / 60);
+        Math.floor(
+            (totalMinutes % 1440) / 60
+        );
 
     const minutes =
         totalMinutes % 60;
@@ -181,8 +234,10 @@ function ageOf(epochIso) {
     }
 
     text +=
-        hours + "時間" +
-        minutes + "分";
+        hours +
+        "時間" +
+        minutes +
+        "分";
 
     return future
         ? "未来 " + text
@@ -204,7 +259,8 @@ function freshnessOf(epochIso) {
     }
 
     const ageHours =
-        (Date.now() - epoch.getTime()) / 3600000;
+        (Date.now() - epoch.getTime())
+        / 3600000;
 
 
     if (ageHours < 24) {
@@ -245,7 +301,8 @@ function freshnessOf(epochIso) {
 function popOf(r) {
 
     const c = catOf(r);
-    const fresh = freshnessOf(r.epoch_iso);
+    const fresh =
+        freshnessOf(r.epoch_iso);
 
     return (
         "<b>" + r.name + "</b><br>" +
@@ -277,33 +334,48 @@ function popOf(r) {
         "<hr>" +
 
         "🚀 <b>打上げ日：</b>" +
-        formatLaunchDate(r.launch_date) + "<br>" +
+        formatLaunchDate(
+            r.launch_date
+        ) +
+        "<br>" +
 
         "📍 <b>打上げ場所：</b>" +
-        (r.launch_site || "不明") + "<br>" +
+        launchSiteName(
+            r.launch_site
+        ) +
+        "<br>" +
 
         "🛰 <b>打上げから：</b>" +
-        launchAgeOf(r.launch_date) + "<br>" +
+        launchAgeOf(
+            r.launch_date
+        ) +
+        "<br>" +
 
         "<hr>" +
 
         "<b>TLEエポック：</b>" +
-        r.epoch_day + "<br>" +
+        r.epoch_day +
+        "<br>" +
 
         "<b>エポック日時：</b>" +
-        r.epoch_utc + "<br>" +
+        r.epoch_utc +
+        "<br>" +
 
         "<b>経過時間：</b>" +
-        ageOf(r.epoch_iso) + "<br>" +
+        ageOf(r.epoch_iso) +
+        "<br>" +
 
         "<b>TLE鮮度：</b>" +
 
         "<span style='" +
         "font-weight:bold;" +
-        "color:" + fresh.color + ";" +
+        "color:" +
+        fresh.color +
+        ";" +
         "'>" +
 
-        fresh.icon + " " +
+        fresh.icon +
+        " " +
         fresh.text +
 
         "</span><br>" +
@@ -311,7 +383,8 @@ function popOf(r) {
         "<hr>" +
 
         "<b>分類：</b>" +
-        c[1] + "<br>" +
+        c[1] +
+        "<br>" +
 
         "<b>任務メモ：</b>" +
         c[2]
@@ -358,8 +431,10 @@ legend.onAdd = function() {
     div.style.background = "white";
     div.style.padding = "10px";
     div.style.borderRadius = "8px";
+
     div.style.boxShadow =
         "0 1px 5px rgba(0,0,0,0.3)";
+
     div.style.fontSize = "13px";
 
     div.innerHTML =
@@ -376,7 +451,9 @@ legend.addTo(map);
 '''
 )
 
-parts.append('</script></body></html>')
+parts.append(
+    '</script></body></html>'
+)
 
 open(
     "tjs_map.html",
