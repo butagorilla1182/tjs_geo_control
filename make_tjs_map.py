@@ -32,19 +32,81 @@ parts.append(
 )
 
 parts.append(
-    '<style>'
-    'body{margin:0;font-family:sans-serif}'
-    '.bar{padding:12px;background:#f7f3ea}'
-    '#map{height:78vh;width:100vw}'
-    '</style></head><body>'
+r'''
+<style>
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.bar {
+    padding: 12px;
+    background: #f7f3ea;
+}
+
+.search-box {
+    display: flex;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+#satSearch {
+    flex: 1;
+    min-width: 0;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #999;
+    border-radius: 8px;
+}
+
+#searchButton {
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 8px;
+    background: #2378d3;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#searchResult {
+    min-height: 20px;
+    margin-top: 6px;
+    font-size: 13px;
+}
+
+#map {
+    height: 72vh;
+    width: 100vw;
+}
+</style>
+</head>
+<body>
+'''
 )
 
 parts.append(
-    f'<div class="bar">'
-    f'<b>TJS GEO Map</b><br>'
-    f'CelesTrak GEO + GPZから抽出したTJSの地図表示<br>'
-    f'表示衛星数：{len(rows)} 機'
-    f'</div>'
+    f'''
+<div class="bar">
+    <b>TJS GEO Map</b><br>
+    CelesTrak GEO + GPZから抽出したTJSの地図表示<br>
+    表示衛星数：{len(rows)} 機
+
+    <div class="search-box">
+        <input
+            id="satSearch"
+            type="text"
+            placeholder="衛星名 または NORAD ID"
+            autocomplete="off"
+        >
+        <button id="searchButton">
+            🔍 検索
+        </button>
+    </div>
+
+    <div id="searchResult"></div>
+</div>
+'''
 )
 
 parts.append('<div id="map"></div>')
@@ -55,18 +117,18 @@ parts.append(
 )
 
 parts.append(
-    'const map = L.map("map").setView([0,140],2);'
-)
-
-parts.append(
-    'L.tileLayer('
-    '"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",'
-    '{maxZoom:6, attribution:"OpenStreetMap"}'
-    ').addTo(map);'
-)
-
-parts.append(
 r'''
+const map = L.map("map").setView([0, 140], 2);
+
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        maxZoom: 6,
+        attribution: "OpenStreetMap"
+    }
+).addTo(map);
+
+
 const LAUNCH_SITES = {
 
     // 中国
@@ -85,7 +147,7 @@ const LAUNCH_SITES = {
     "SVOBO": "スヴォボードヌイ宇宙基地",
     "TYMSC": "バイコヌール宇宙基地",
 
-    // 海上・その他
+    // その他
     "SEAL":  "シーローンチ海上発射施設",
     "SUBL":  "潜水艦発射",
     "UNK":   "不明"
@@ -108,32 +170,38 @@ function launchSiteName(code) {
         return name + "（" + key + "）";
     }
 
-    // 未登録コードでも略号自体は消さない
     return key;
 }
 
 
 function catOf(r) {
 
-    const n = String(r.name || "").toUpperCase();
-    const lat = Math.abs(parseFloat(r.lat || "0"));
+    const n =
+        String(r.name || "").toUpperCase();
 
-    if (lat > 3)
+    const lat =
+        Math.abs(
+            parseFloat(r.lat || "0")
+        );
+
+    if (lat > 3) {
         return [
             "#dd6b20",
             "移動中・傾斜大",
             "GEO付近だが南北に大きく振れている。移動中・静止化途中・傾斜軌道の可能性"
         ];
+    }
 
     if (
         n.includes("TJS") ||
         n.includes("TONGXIN")
-    )
+    ) {
         return [
             "#2b6cb0",
             "TJS・通信技術試験",
             "中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"
         ];
+    }
 
     return [
         "#718096",
@@ -259,8 +327,10 @@ function freshnessOf(epochIso) {
     }
 
     const ageHours =
-        (Date.now() - epoch.getTime())
-        / 3600000;
+        (
+            Date.now() -
+            epoch.getTime()
+        ) / 3600000;
 
 
     if (ageHours < 24) {
@@ -301,6 +371,7 @@ function freshnessOf(epochIso) {
 function popOf(r) {
 
     const c = catOf(r);
+
     const fresh =
         freshnessOf(r.epoch_iso);
 
@@ -392,26 +463,220 @@ function popOf(r) {
 }
 
 
+/*
+ * 衛星マーカーを保持
+ * 検索したときに直接アクセスする
+ */
+const satelliteMarkers = [];
+
+
 data.forEach(r => {
 
     const c = catOf(r);
 
-    L.circleMarker(
+    const marker =
+        L.circleMarker(
+            [
+                parseFloat(r.lat),
+                parseFloat(r.lon)
+            ],
+            {
+                radius: 8,
+                color: "#1a202c",
+                weight: 1,
+                fillColor: c[0],
+                fillOpacity: 0.9
+            }
+        )
+        .addTo(map)
+        .bindPopup(popOf(r));
+
+    satelliteMarkers.push({
+        data: r,
+        marker: marker
+    });
+});
+
+
+/*
+ * TJS-12
+ * TJS12
+ * tjs 12
+ *
+ * 全部同じ文字列として検索できるようにする
+ */
+function normalizeSearch(value) {
+
+    return String(value || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
+}
+
+
+function searchSatellite() {
+
+    const input =
+        document.getElementById(
+            "satSearch"
+        );
+
+    const result =
+        document.getElementById(
+            "searchResult"
+        );
+
+    const raw =
+        input.value.trim();
+
+    const query =
+        normalizeSearch(raw);
+
+
+    if (!query) {
+
+        result.textContent =
+            "衛星名かNORAD IDを入力してください";
+
+        return;
+    }
+
+
+    /*
+     * 最初に完全一致を探す
+     */
+    let found =
+        satelliteMarkers.find(item => {
+
+            const name =
+                normalizeSearch(
+                    item.data.name
+                );
+
+            const norad =
+                normalizeSearch(
+                    item.data.norad
+                );
+
+            return (
+                name === query ||
+                norad === query
+            );
+        });
+
+
+    /*
+     * 完全一致が無ければ部分一致
+     */
+    if (!found) {
+
+        found =
+            satelliteMarkers.find(item => {
+
+                const name =
+                    normalizeSearch(
+                        item.data.name
+                    );
+
+                const norad =
+                    normalizeSearch(
+                        item.data.norad
+                    );
+
+                return (
+                    name.includes(query) ||
+                    norad.includes(query)
+                );
+            });
+    }
+
+
+    if (!found) {
+
+        result.textContent =
+            "❌ 該当する衛星がありません";
+
+        return;
+    }
+
+
+    const r =
+        found.data;
+
+    const marker =
+        found.marker;
+
+
+    /*
+     * 衛星位置へ移動
+     */
+    map.setView(
         [
             parseFloat(r.lat),
             parseFloat(r.lon)
         ],
+        5,
         {
-            radius: 8,
-            color: "#1a202c",
-            weight: 1,
-            fillColor: c[0],
-            fillOpacity: 0.9
+            animate: true
         }
-    )
-    .addTo(map)
-    .bindPopup(popOf(r));
-});
+    );
+
+
+    /*
+     * ポップアップ表示
+     */
+    marker.openPopup();
+
+
+    /*
+     * 一瞬マーカーを大きくして
+     * 見つけやすくする
+     */
+    marker.setRadius(14);
+
+    setTimeout(
+        function() {
+            marker.setRadius(8);
+        },
+        2500
+    );
+
+
+    result.textContent =
+        "✅ " +
+        r.name +
+        " / NORAD " +
+        r.norad;
+}
+
+
+/*
+ * 検索ボタン
+ */
+document
+    .getElementById("searchButton")
+    .addEventListener(
+        "click",
+        searchSatellite
+    );
+
+
+/*
+ * Enterキーでも検索
+ */
+document
+    .getElementById("satSearch")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                searchSatellite();
+            }
+        }
+    );
 
 
 const legend =
