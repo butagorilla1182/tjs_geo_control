@@ -34,6 +34,7 @@ parts.append(
 parts.append(
 r'''
 <style>
+
 body {
     margin: 0;
     font-family: sans-serif;
@@ -80,18 +81,10 @@ body {
     width: 100vw;
 }
 
-/* 詳細ポップアップを衛星カテゴリより前面にする */
-.leaflet-popup-pane {
-    z-index: 1200 !important;
-}
-
-/* 左下の衛星カテゴリを後ろにする */
-.leaflet-bottom.leaflet-left {
-    z-index: 600 !important;
-}
-
 </style>
+
 </head>
+
 <body>
 '''
 )
@@ -99,29 +92,41 @@ body {
 parts.append(
     f'''
 <div class="bar">
+
     <b>TJS GEO Map</b><br>
+
     CelesTrak GEO + GPZから抽出したTJSの地図表示<br>
+
     表示衛星数：{len(rows)} 機
 
     <div class="search-box">
+
         <input
             id="satSearch"
             type="text"
             placeholder="衛星名 または NORAD ID"
             autocomplete="off"
         >
+
         <button id="searchButton">
             🔍 検索
         </button>
+
     </div>
 
     <div id="searchResult"></div>
+
 </div>
 '''
 )
 
-parts.append('<div id="map"></div>')
-parts.append('<script>')
+parts.append(
+    '<div id="map"></div>'
+)
+
+parts.append(
+    '<script>'
+)
 
 parts.append(
     'const data = ' + markers + ';'
@@ -129,7 +134,13 @@ parts.append(
 
 parts.append(
 r'''
-const map = L.map("map").setView([0, 140], 2);
+
+const map =
+    L.map("map").setView(
+        [0, 140],
+        2
+    );
+
 
 L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -140,29 +151,64 @@ L.tileLayer(
 ).addTo(map);
 
 
+
+/* =========================================================
+   打上げ場所
+   ========================================================= */
+
 const LAUNCH_SITES = {
 
     // 中国
-    "WSC":   "文昌衛星発射場",
-    "XICLF": "西昌衛星発射センター",
-    "JSC":   "酒泉衛星発射センター",
-    "TAISC": "太原衛星発射センター",
-    "SCSLA": "南シナ海打上げ区域",
-    "YSLA":  "黄海打上げ区域",
+    "WSC":
+        "文昌衛星発射場",
+
+    "XICLF":
+        "西昌衛星発射センター",
+
+    "JSC":
+        "酒泉衛星発射センター",
+
+    "TAISC":
+        "太原衛星発射センター",
+
+    "SCSLA":
+        "南シナ海打上げ区域",
+
+    "YSLA":
+        "黄海打上げ区域",
+
 
     // ロシア・旧ソ連圏
-    "DLS":   "ドンバロフスキー発射場",
-    "PLMSC": "プレセツク宇宙基地",
-    "KYMSC": "カプースチン・ヤール",
-    "VOSTO": "ボストーチヌイ宇宙基地",
-    "SVOBO": "スヴォボードヌイ宇宙基地",
-    "TYMSC": "バイコヌール宇宙基地",
+    "DLS":
+        "ドンバロフスキー発射場",
+
+    "PLMSC":
+        "プレセツク宇宙基地",
+
+    "KYMSC":
+        "カプースチン・ヤール",
+
+    "VOSTO":
+        "ボストーチヌイ宇宙基地",
+
+    "SVOBO":
+        "スヴォボードヌイ宇宙基地",
+
+    "TYMSC":
+        "バイコヌール宇宙基地",
+
 
     // その他
-    "SEAL":  "シーローンチ海上発射施設",
-    "SUBL":  "潜水艦発射",
-    "UNK":   "不明"
+    "SEAL":
+        "シーローンチ海上発射施設",
+
+    "SUBL":
+        "潜水艦発射",
+
+    "UNK":
+        "不明"
 };
+
 
 
 function launchSiteName(code) {
@@ -172,30 +218,48 @@ function launchSiteName(code) {
     }
 
     const key =
-        String(code).trim().toUpperCase();
+        String(code)
+            .trim()
+            .toUpperCase();
 
     const name =
         LAUNCH_SITES[key];
 
     if (name) {
-        return name + "（" + key + "）";
+        return (
+            name +
+            "（" +
+            key +
+            "）"
+        );
     }
 
     return key;
 }
 
 
+
+/* =========================================================
+   衛星カテゴリ
+   ========================================================= */
+
 function catOf(r) {
 
     const n =
-        String(r.name || "").toUpperCase();
+        String(
+            r.name || ""
+        ).toUpperCase();
 
     const lat =
         Math.abs(
-            parseFloat(r.lat || "0")
+            parseFloat(
+                r.lat || "0"
+            )
         );
 
+
     if (lat > 3) {
+
         return [
             "#dd6b20",
             "移動中・傾斜大",
@@ -203,16 +267,19 @@ function catOf(r) {
         ];
     }
 
+
     if (
         n.includes("TJS") ||
         n.includes("TONGXIN")
     ) {
+
         return [
             "#2b6cb0",
             "TJS・通信技術試験",
             "中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"
         ];
     }
+
 
     return [
         "#718096",
@@ -222,14 +289,23 @@ function catOf(r) {
 }
 
 
+
+/* =========================================================
+   打上げ情報
+   ========================================================= */
+
 function formatLaunchDate(date) {
 
     if (!date) {
         return "不明";
     }
 
-    return date.replaceAll("-", "/");
+    return date.replaceAll(
+        "-",
+        "/"
+    );
 }
+
 
 
 function launchAgeOf(date) {
@@ -239,78 +315,139 @@ function launchAgeOf(date) {
     }
 
     const launch =
-        new Date(date + "T00:00:00Z");
+        new Date(
+            date +
+            "T00:00:00Z"
+        );
 
-    if (Number.isNaN(launch.getTime())) {
+
+    if (
+        Number.isNaN(
+            launch.getTime()
+        )
+    ) {
         return "不明";
     }
 
+
     const diff =
-        Date.now() - launch.getTime();
+        Date.now() -
+        launch.getTime();
+
 
     if (diff < 0) {
         return "未打上げ";
     }
 
+
     const days =
-        Math.floor(diff / 86400000);
+        Math.floor(
+            diff / 86400000
+        );
+
 
     if (days < 365) {
-        return days + "日";
+        return (
+            days +
+            "日"
+        );
     }
 
+
     const years =
-        Math.floor(days / 365.2425);
+        Math.floor(
+            days / 365.2425
+        );
+
 
     const remainDays =
         Math.floor(
-            days - years * 365.2425
+            days -
+            years * 365.2425
         );
 
-    return years +
+
+    return (
+        years +
         "年 " +
         remainDays +
-        "日";
+        "日"
+    );
 }
 
+
+
+/* =========================================================
+   TLE経過時間
+   ========================================================= */
 
 function ageOf(epochIso) {
 
     const epoch =
-        new Date(epochIso);
+        new Date(
+            epochIso
+        );
 
-    if (Number.isNaN(epoch.getTime())) {
+
+    if (
+        Number.isNaN(
+            epoch.getTime()
+        )
+    ) {
         return "不明";
     }
 
+
     let diff =
-        Date.now() - epoch.getTime();
+        Date.now() -
+        epoch.getTime();
+
 
     const future =
         diff < 0;
 
+
     diff =
-        Math.abs(diff);
+        Math.abs(
+            diff
+        );
+
 
     const totalMinutes =
-        Math.floor(diff / 60000);
+        Math.floor(
+            diff / 60000
+        );
+
 
     const days =
-        Math.floor(totalMinutes / 1440);
+        Math.floor(
+            totalMinutes / 1440
+        );
+
 
     const hours =
         Math.floor(
-            (totalMinutes % 1440) / 60
+            (
+                totalMinutes %
+                1440
+            ) / 60
         );
+
 
     const minutes =
         totalMinutes % 60;
 
+
     let text = "";
 
+
     if (days > 0) {
-        text += days + "日 ";
+
+        text +=
+            days +
+            "日 ";
     }
+
 
     text +=
         hours +
@@ -318,24 +455,39 @@ function ageOf(epochIso) {
         minutes +
         "分";
 
+
     return future
         ? "未来 " + text
         : text;
 }
 
 
+
+/* =========================================================
+   TLE鮮度
+   ========================================================= */
+
 function freshnessOf(epochIso) {
 
     const epoch =
-        new Date(epochIso);
+        new Date(
+            epochIso
+        );
 
-    if (Number.isNaN(epoch.getTime())) {
+
+    if (
+        Number.isNaN(
+            epoch.getTime()
+        )
+    ) {
+
         return {
             color: "#718096",
             icon: "⚪",
             text: "不明"
         };
     }
+
 
     const ageHours =
         (
@@ -345,6 +497,7 @@ function freshnessOf(epochIso) {
 
 
     if (ageHours < 24) {
+
         return {
             color: "#16a34a",
             icon: "🟢",
@@ -354,6 +507,7 @@ function freshnessOf(epochIso) {
 
 
     if (ageHours < 72) {
+
         return {
             color: "#ca8a04",
             icon: "🟡",
@@ -363,6 +517,7 @@ function freshnessOf(epochIso) {
 
 
     if (ageHours < 168) {
+
         return {
             color: "#ea580c",
             icon: "🟠",
@@ -379,94 +534,152 @@ function freshnessOf(epochIso) {
 }
 
 
+
+/* =========================================================
+   ポップアップ
+   ========================================================= */
+
 function popOf(r) {
 
-    const c = catOf(r);
+    const c =
+        catOf(r);
+
 
     const fresh =
-        freshnessOf(r.epoch_iso);
+        freshnessOf(
+            r.epoch_iso
+        );
+
 
     return (
-        "<b>" + r.name + "</b><br>" +
+
+        "<b>" +
+        r.name +
+        "</b><br>" +
+
 
         "<span style='" +
+
         "display:inline-block;" +
         "margin:4px 0;" +
         "padding:2px 8px;" +
         "border-radius:10px;" +
-        "background:" + c[0] + ";" +
+
+        "background:" +
+        c[0] +
+        ";" +
+
         "color:white;" +
         "font-size:12px;" +
+
         "'>" +
+
         c[1] +
+
         "</span><br>" +
 
+
         "<b>NORAD ID：</b>" +
-        r.norad + "<br>" +
+        r.norad +
+        "<br>" +
+
 
         "<b>緯度：</b>" +
-        r.lat + "°<br>" +
+        r.lat +
+        "°<br>" +
+
 
         "<b>経度：</b>" +
-        r.lon + "°<br>" +
+        r.lon +
+        "°<br>" +
+
 
         "<b>高度：</b>" +
-        r.alt_km + " km<br>" +
+        r.alt_km +
+        " km<br>" +
+
 
         "<hr>" +
 
+
         "🚀 <b>打上げ日：</b>" +
+
         formatLaunchDate(
             r.launch_date
         ) +
+
         "<br>" +
 
+
         "📍 <b>打上げ場所：</b>" +
+
         launchSiteName(
             r.launch_site
         ) +
+
         "<br>" +
 
+
         "🛰 <b>打上げから：</b>" +
+
         launchAgeOf(
             r.launch_date
         ) +
+
         "<br>" +
 
+
         "<hr>" +
+
 
         "<b>TLEエポック：</b>" +
         r.epoch_day +
         "<br>" +
 
+
         "<b>エポック日時：</b>" +
         r.epoch_utc +
         "<br>" +
 
+
         "<b>経過時間：</b>" +
-        ageOf(r.epoch_iso) +
+
+        ageOf(
+            r.epoch_iso
+        ) +
+
         "<br>" +
+
 
         "<b>TLE鮮度：</b>" +
 
+
         "<span style='" +
+
         "font-weight:bold;" +
+
         "color:" +
         fresh.color +
         ";" +
+
         "'>" +
+
 
         fresh.icon +
         " " +
         fresh.text +
 
+
         "</span><br>" +
 
+
         "<hr>" +
+
 
         "<b>分類：</b>" +
         c[1] +
         "<br>" +
+
 
         "<b>任務メモ：</b>" +
         c[2]
@@ -474,55 +687,96 @@ function popOf(r) {
 }
 
 
-/*
- * 衛星マーカーを保持
- * 検索したときに直接アクセスする
- */
+
+/* =========================================================
+   マーカー
+   ========================================================= */
+
 const satelliteMarkers = [];
 
 
 data.forEach(r => {
 
-    const c = catOf(r);
+    const c =
+        catOf(r);
+
 
     const marker =
         L.circleMarker(
+
             [
-                parseFloat(r.lat),
-                parseFloat(r.lon)
+                parseFloat(
+                    r.lat
+                ),
+
+                parseFloat(
+                    r.lon
+                )
             ],
+
             {
                 radius: 8,
-                color: "#1a202c",
+
+                color:
+                    "#1a202c",
+
                 weight: 1,
-                fillColor: c[0],
-                fillOpacity: 0.9
+
+                fillColor:
+                    c[0],
+
+                fillOpacity:
+                    0.9
             }
         )
+
         .addTo(map)
-        .bindPopup(popOf(r));
+
+        .bindPopup(
+            popOf(r)
+        );
+
 
     satelliteMarkers.push({
+
         data: r,
+
         marker: marker
     });
 });
 
 
-/*
- * TJS-12
- * TJS12
- * tjs 12
- *
- * 全部同じ文字列として検索できるようにする
- */
+
+/* =========================================================
+   検索用文字列正規化
+
+   TJS-12
+   TJS12
+   Tjs12
+   TJS 12
+
+   全部同じ扱い
+   ========================================================= */
+
 function normalizeSearch(value) {
 
-    return String(value || "")
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "");
+    return String(
+        value || ""
+    )
+
+    .toUpperCase()
+
+    .replace(
+        /[^A-Z0-9]/g,
+        ""
+    );
 }
 
+
+
+/* =========================================================
+   衛星検索
+   ========================================================= */
 
 function searchSatellite() {
 
@@ -531,16 +785,21 @@ function searchSatellite() {
             "satSearch"
         );
 
+
     const result =
         document.getElementById(
             "searchResult"
         );
 
+
     const raw =
         input.value.trim();
 
+
     const query =
-        normalizeSearch(raw);
+        normalizeSearch(
+            raw
+        );
 
 
     if (!query) {
@@ -552,53 +811,71 @@ function searchSatellite() {
     }
 
 
-    /*
-     * 最初に完全一致を探す
-     */
+
+    /* -------------------------
+       完全一致
+       ------------------------- */
+
     let found =
-        satelliteMarkers.find(item => {
-
-            const name =
-                normalizeSearch(
-                    item.data.name
-                );
-
-            const norad =
-                normalizeSearch(
-                    item.data.norad
-                );
-
-            return (
-                name === query ||
-                norad === query
-            );
-        });
-
-
-    /*
-     * 完全一致が無ければ部分一致
-     */
-    if (!found) {
-
-        found =
-            satelliteMarkers.find(item => {
+        satelliteMarkers.find(
+            item => {
 
                 const name =
                     normalizeSearch(
                         item.data.name
                     );
 
+
                 const norad =
                     normalizeSearch(
                         item.data.norad
                     );
 
+
                 return (
-                    name.includes(query) ||
-                    norad.includes(query)
+                    name === query ||
+                    norad === query
                 );
-            });
+            }
+        );
+
+
+
+    /* -------------------------
+       部分一致
+       ------------------------- */
+
+    if (!found) {
+
+        found =
+            satelliteMarkers.find(
+                item => {
+
+                    const name =
+                        normalizeSearch(
+                            item.data.name
+                        );
+
+
+                    const norad =
+                        normalizeSearch(
+                            item.data.norad
+                        );
+
+
+                    return (
+                        name.includes(
+                            query
+                        ) ||
+
+                        norad.includes(
+                            query
+                        )
+                    );
+                }
+            );
     }
+
 
 
     if (!found) {
@@ -610,46 +887,70 @@ function searchSatellite() {
     }
 
 
+
     const r =
         found.data;
+
 
     const marker =
         found.marker;
 
 
-    /*
-     * 衛星位置へ移動
-     */
+
+    /* -------------------------
+       衛星位置へ移動
+       ------------------------- */
+
     map.setView(
+
         [
-            parseFloat(r.lat),
-            parseFloat(r.lon)
+            parseFloat(
+                r.lat
+            ),
+
+            parseFloat(
+                r.lon
+            )
         ],
+
         5,
+
         {
             animate: true
         }
     );
 
 
-    /*
-     * ポップアップ表示
-     */
+
+    /* -------------------------
+       ポップアップ表示
+       ------------------------- */
+
     marker.openPopup();
 
 
-    /*
-     * 一瞬マーカーを大きくして
-     * 見つけやすくする
-     */
-    marker.setRadius(14);
+
+    /* -------------------------
+       マーカー強調
+       ------------------------- */
+
+    marker.setRadius(
+        14
+    );
+
 
     setTimeout(
+
         function() {
-            marker.setRadius(8);
+
+            marker.setRadius(
+                8
+            );
         },
+
         2500
     );
+
 
 
     result.textContent =
@@ -660,27 +961,42 @@ function searchSatellite() {
 }
 
 
-/*
- * 検索ボタン
- */
+
+/* =========================================================
+   検索ボタン
+   ========================================================= */
+
 document
-    .getElementById("searchButton")
+    .getElementById(
+        "searchButton"
+    )
     .addEventListener(
+
         "click",
+
         searchSatellite
     );
 
 
-/*
- * Enterキーでも検索
- */
+
+/* =========================================================
+   Enterでも検索
+   ========================================================= */
+
 document
-    .getElementById("satSearch")
+    .getElementById(
+        "satSearch"
+    )
     .addEventListener(
+
         "keydown",
+
         function(event) {
 
-            if (event.key === "Enter") {
+            if (
+                event.key ===
+                "Enter"
+            ) {
 
                 event.preventDefault();
 
@@ -690,46 +1006,129 @@ document
     );
 
 
+
+/* =========================================================
+   衛星カテゴリ
+   ========================================================= */
+
 const legend =
     L.control({
-        position: "bottomleft"
+        position:
+            "bottomleft"
     });
 
 
-legend.onAdd = function() {
 
-    const div =
-        L.DomUtil.create(
-            "div",
-            "info legend"
-        );
+legend.onAdd =
+    function() {
 
-    div.style.background = "white";
-    div.style.padding = "10px";
-    div.style.borderRadius = "8px";
+        const div =
+            L.DomUtil.create(
+                "div",
+                "info legend"
+            );
 
-    div.style.boxShadow =
-        "0 1px 5px rgba(0,0,0,0.3)";
 
-    div.style.fontSize = "13px";
+        /*
+         * ポップアップ時に
+         * このカテゴリだけ隠すためのID
+         */
+        div.id =
+            "satLegend";
 
-    div.innerHTML =
-        "<b>衛星カテゴリ</b><br>" +
-        "<div>🔵 TJS・通信技術試験</div>" +
-        "<div>🟠 移動中・傾斜大</div>" +
-        "<div>⚫ 未整理</div>";
 
-    return div;
-};
+        div.style.background =
+            "white";
+
+        div.style.padding =
+            "10px";
+
+        div.style.borderRadius =
+            "8px";
+
+        div.style.boxShadow =
+            "0 1px 5px rgba(0,0,0,0.3)";
+
+        div.style.fontSize =
+            "13px";
+
+
+        div.innerHTML =
+
+            "<b>衛星カテゴリ</b><br>" +
+
+            "<div>🔵 TJS・通信技術試験</div>" +
+
+            "<div>🟠 移動中・傾斜大</div>" +
+
+            "<div>⚫ 未整理</div>";
+
+
+        return div;
+    };
 
 
 legend.addTo(map);
+
+
+
+/* =========================================================
+   ポップアップ表示中は
+   衛星カテゴリを自動的に隠す
+   ========================================================= */
+
+map.on(
+    "popupopen",
+
+    function() {
+
+        const legendBox =
+            document.getElementById(
+                "satLegend"
+            );
+
+
+        if (legendBox) {
+
+            legendBox.style.display =
+                "none";
+        }
+    }
+);
+
+
+
+/* =========================================================
+   ポップアップを閉じたら
+   衛星カテゴリを復活
+   ========================================================= */
+
+map.on(
+    "popupclose",
+
+    function() {
+
+        const legendBox =
+            document.getElementById(
+                "satLegend"
+            );
+
+
+        if (legendBox) {
+
+            legendBox.style.display =
+                "block";
+        }
+    }
+);
+
 '''
 )
 
 parts.append(
     '</script></body></html>'
 )
+
 
 open(
     "tjs_map.html",
@@ -739,5 +1138,11 @@ open(
     "\n".join(parts)
 )
 
-print("saved tjs_map.html")
-print(f"count: {len(rows)}")
+
+print(
+    "saved tjs_map.html"
+)
+
+print(
+    f"count: {len(rows)}"
+)
