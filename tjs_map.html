@@ -1,9 +1,6 @@
 <html>
-
 <head>
-
 <meta charset="utf-8">
-
 <title>TJS GEO Map</title>
 
 <meta
@@ -85,17 +82,17 @@ body {
    ========================================================= */
 
 .leaflet-popup {
-    max-width: 94vw;
+    max-width: 92vw;
 }
 
 
 .leaflet-popup-content-wrapper {
-    max-width: 440px;
+    max-width: 420px;
 }
 
 
 .leaflet-popup-content {
-    max-height: 390px;
+    max-height: 360px;
 
     overflow-y: auto;
 
@@ -124,13 +121,12 @@ body {
 
 .itu-box {
     margin-top: 8px;
-
     padding: 10px;
 
-    background: #eef5ff;
+    background: #eef6ff;
 
     border:
-        1px solid #9ab9df;
+        1px solid #9bbde0;
 
     border-radius: 9px;
 }
@@ -139,7 +135,7 @@ body {
 .itu-title {
     margin-bottom: 7px;
 
-    color: #164f91;
+    color: #155b96;
 
     font-size: 14px;
 
@@ -148,46 +144,35 @@ body {
 
 
 .itu-row {
-    margin: 3px 0;
+    margin-top: 4px;
 
     font-size: 13px;
 }
 
 
 .itu-label {
-    color: #555;
-
     font-weight: bold;
 }
 
 
-.itu-note {
-    margin-top: 8px;
-
-    color: #666;
-
-    font-size: 11px;
-
-    line-height: 1.45;
+.itu-pending {
+    color: #b26a00;
+    font-weight: bold;
 }
 
 
 .itu-button {
     display: block;
 
-    width: 100%;
-
     margin-top: 10px;
 
-    padding: 9px 8px;
-
-    border: 0;
+    padding: 9px;
 
     border-radius: 7px;
 
     background: #1769aa;
 
-    color: white;
+    color: white !important;
 
     text-align: center;
 
@@ -199,15 +184,1978 @@ body {
 }
 
 
+.itu-note {
+    margin-top: 7px;
+
+    color: #666;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="bar">
+
+    <b>TJS GEO Map</b><br>
+
+    CelesTrak GEO + GPZから抽出したTJSの地図表示<br>
+
+    表示衛星数：22 機
+
+    <div class="search-box">
+
+        <input
+            id="satSearch"
+            type="text"
+            placeholder="衛星名 または NORAD ID"
+            autocomplete="off"
+        >
+
+        <button id="searchButton">
+            🔍 検索
+        </button>
+
+    </div>
+
+    <div id="searchResult"></div>
+
+</div>
+
+
+<div id="map"></div>
+
+
+<script>
+
+
 /* =========================================================
-   FREQUENCY PLACEHOLDER
+   TJS DATA
    ========================================================= */
 
-.freq-box {
-    margin-top: 8px;
+const data = [
 
-    padding: 8px;
+{
+    "name": "TJS-7",
+    "norad": "49115",
+    "lat": "0.2142",
+    "lon": "-99.4929",
+    "alt_km": "35778.2",
+    "launch_date": "2021-08-24",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.44603839",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 10:42:17 UTC",
+    "epoch_iso": "2026-07-25T10:42:17.716896Z"
+},
 
-    background: white;
+{
+    "name": "TJS-14",
+    "norad": "62804",
+    "lat": "0.351",
+    "lon": "18.3467",
+    "alt_km": "35792.3",
+    "launch_date": "2025-01-23",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.35947441",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 08:37:38 UTC",
+    "epoch_iso": "2026-07-25T08:37:38.589024Z"
+},
 
-    border-radius: 
+{
+    "name": "TJS-20",
+    "norad": "66142",
+    "lat": "-1.3247",
+    "lon": "62.3254",
+    "alt_km": "35769.2",
+    "launch_date": "2025-10-23",
+    "launch_site": "WSC",
+    "epoch_raw": "26206.28635880",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 06:52:21 UTC",
+    "epoch_iso": "2026-07-25T06:52:21.400320Z"
+},
+
+{
+    "name": "TJS-22",
+    "norad": "66990",
+    "lat": "-0.713",
+    "lon": "66.4151",
+    "alt_km": "35789.8",
+    "launch_date": "2025-12-09",
+    "launch_site": "XICLF",
+    "epoch_raw": "26205.77478525",
+    "epoch_day": "2026年205日目",
+    "epoch_utc": "2026/07/24 18:35:41 UTC",
+    "epoch_iso": "2026-07-24T18:35:41.445600Z"
+},
+
+{
+    "name": "TJS-2",
+    "norad": "41911",
+    "lat": "0.7703",
+    "lon": "66.5432",
+    "alt_km": "35782.1",
+    "launch_date": "2017-01-05",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.12246197",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 02:56:20 UTC",
+    "epoch_iso": "2026-07-25T02:56:20.714208Z"
+},
+
+{
+    "name": "TJS-4",
+    "norad": "44637",
+    "lat": "-0.0539",
+    "lon": "83.6097",
+    "alt_km": "35783.9",
+    "launch_date": "2019-10-17",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.05457447",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 01:18:35 UTC",
+    "epoch_iso": "2026-07-25T01:18:35.234208Z"
+},
+
+{
+    "name": "TJS-24",
+    "norad": "69235",
+    "lat": "0.1178",
+    "lon": "90.3251",
+    "alt_km": "35784.9",
+    "launch_date": "2026-05-26",
+    "launch_site": "WSC",
+    "epoch_raw": "26206.70425574",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 16:54:07 UTC",
+    "epoch_iso": "2026-07-25T16:54:07.695936Z"
+},
+
+{
+    "name": "TJS-10",
+    "norad": "58204",
+    "lat": "2.6519",
+    "lon": "92.3885",
+    "alt_km": "35770.1",
+    "launch_date": "2023-11-03",
+    "launch_site": "WSC",
+    "epoch_raw": "26206.61086573",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 14:39:38 UTC",
+    "epoch_iso": "2026-07-25T14:39:38.799072Z"
+},
+
+{
+    "name": "TJS-15",
+    "norad": "63157",
+    "lat": "0.3274",
+    "lon": "94.4175",
+    "alt_km": "35796.3",
+    "launch_date": "2025-03-09",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.60260191",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 14:27:44 UTC",
+    "epoch_iso": "2026-07-25T14:27:44.805024Z"
+},
+
+{
+    "name": "TJS-26A",
+    "norad": "69674",
+    "lat": "-4.0361",
+    "lon": "107.2681",
+    "alt_km": "35798.4",
+    "launch_date": "2026-06-23",
+    "launch_site": "WSC",
+    "epoch_raw": "26206.30461407",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 07:18:38 UTC",
+    "epoch_iso": "2026-07-25T07:18:38.655648Z"
+},
+
+{
+    "name": "TJS-5",
+    "norad": "44978",
+    "lat": "0.1091",
+    "lon": "107.583",
+    "alt_km": "35802.9",
+    "launch_date": "2020-01-07",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.56572399",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 13:34:38 UTC",
+    "epoch_iso": "2026-07-25T13:34:38.552736Z"
+},
+
+{
+    "name": "TJS-11",
+    "norad": "59020",
+    "lat": "-2.4556",
+    "lon": "112.5016",
+    "alt_km": "35782.1",
+    "launch_date": "2024-02-23",
+    "launch_site": "WSC",
+    "epoch_raw": "26204.84843844",
+    "epoch_day": "2026年204日目",
+    "epoch_utc": "2026/07/23 20:21:45 UTC",
+    "epoch_iso": "2026-07-23T20:21:45.081216Z"
+},
+
+{
+    "name": "TJS-25",
+    "norad": "69474",
+    "lat": "-3.9119",
+    "lon": "120.0402",
+    "alt_km": "35779.3",
+    "launch_date": "2026-06-11",
+    "launch_site": "WSC",
+    "epoch_raw": "26206.34674455",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 08:19:18 UTC",
+    "epoch_iso": "2026-07-25T08:19:18.729120Z"
+},
+
+{
+    "name": "TJS-9",
+    "norad": "50574",
+    "lat": "0.0767",
+    "lon": "137.2357",
+    "alt_km": "35793.0",
+    "launch_date": "2021-12-29",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.38308674",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 09:11:38 UTC",
+    "epoch_iso": "2026-07-25T09:11:38.694336Z"
+},
+
+{
+    "name": "TJS-19",
+    "norad": "63924",
+    "lat": "-3.1065",
+    "lon": "141.2432",
+    "alt_km": "35768.3",
+    "launch_date": "2025-05-12",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.73832755",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 17:43:11 UTC",
+    "epoch_iso": "2026-07-25T17:43:11.500320Z"
+},
+
+{
+    "name": "TJS-12",
+    "norad": "62374",
+    "lat": "-0.5824",
+    "lon": "146.5263",
+    "alt_km": "35793.8",
+    "launch_date": "2024-12-20",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.47961292",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 11:30:38 UTC",
+    "epoch_iso": "2026-07-25T11:30:38.556288Z"
+},
+
+{
+    "name": "TJS-3",
+    "norad": "43874",
+    "lat": "1.7172",
+    "lon": "148.2555",
+    "alt_km": "35779.3",
+    "launch_date": "2018-12-24",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.68294442",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 16:23:26 UTC",
+    "epoch_iso": "2026-07-25T16:23:26.397888Z"
+},
+
+{
+    "name": "TJS-1",
+    "norad": "40892",
+    "lat": "0.2628",
+    "lon": "155.0695",
+    "alt_km": "35796.7",
+    "launch_date": "2015-09-12",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.51295066",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 12:18:38 UTC",
+    "epoch_iso": "2026-07-25T12:18:38.937024Z"
+},
+
+{
+    "name": "TJS-16",
+    "norad": "63397",
+    "lat": "0.5831",
+    "lon": "160.6",
+    "alt_km": "35794.4",
+    "launch_date": "2025-03-29",
+    "launch_site": "WSC",
+    "epoch_raw": "26206.73772220",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 17:42:19 UTC",
+    "epoch_iso": "2026-07-25T17:42:19.198080Z"
+},
+
+{
+    "name": "TJS-17",
+    "norad": "63524",
+    "lat": "0.5154",
+    "lon": "164.5023",
+    "alt_km": "35789.9",
+    "launch_date": "2025-04-10",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.67451042",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 16:11:17 UTC",
+    "epoch_iso": "2026-07-25T16:11:17.700288Z"
+},
+
+{
+    "name": "TJS-23",
+    "norad": "67226",
+    "lat": "-4.2421",
+    "lon": "175.6537",
+    "alt_km": "35792.2",
+    "launch_date": "2025-12-20",
+    "launch_site": "WSC",
+    "epoch_raw": "26205.49937446",
+    "epoch_day": "2026年205日目",
+    "epoch_utc": "2026/07/24 11:59:05 UTC",
+    "epoch_iso": "2026-07-24T11:59:05.953344Z"
+},
+
+{
+    "name": "TJS-6",
+    "norad": "47613",
+    "lat": "-0.038",
+    "lon": "178.5327",
+    "alt_km": "35790.9",
+    "launch_date": "2021-02-04",
+    "launch_site": "XICLF",
+    "epoch_raw": "26206.57235443",
+    "epoch_day": "2026年206日目",
+    "epoch_utc": "2026/07/25 13:44:11 UTC",
+    "epoch_iso": "2026-07-25T13:44:11.422752Z"
+}
+
+];
+
+
+/* =========================================================
+   MAP
+   ========================================================= */
+
+const map =
+
+    L.map(
+        "map"
+    )
+
+    .setView(
+        [
+            0,
+            140
+        ],
+        2
+    );
+
+
+L.tileLayer(
+
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+    {
+
+        maxZoom:
+            6,
+
+        attribution:
+            "OpenStreetMap"
+
+    }
+
+)
+
+.addTo(
+    map
+);
+
+
+/* =========================================================
+   ITU
+   ========================================================= */
+
+const ITU_SPACE_EXPLORER =
+
+    "https://www.itu.int/itu-r/space/apps/public/spaceexplorer/networks-explorer";
+
+
+function geoPositionText(
+    lonValue
+) {
+
+    const lon =
+
+        Number(
+            lonValue
+        );
+
+
+    if (
+        !Number.isFinite(
+            lon
+        )
+    ) {
+
+        return "不明";
+
+    }
+
+
+    if (
+        lon < 0
+    ) {
+
+        return (
+
+            Math.abs(
+                lon
+            )
+            .toFixed(
+                2
+            )
+
+            +
+            "°W"
+
+        );
+
+    }
+
+
+    return (
+
+        lon
+            .toFixed(
+                2
+            )
+
+        +
+        "°E"
+
+    );
+
+}
+
+
+/*
+ * ここは推測データを入れない。
+ *
+ * ITU Network名・周波数は
+ * 実際に照合できたものだけ
+ * 後から追加する。
+ */
+function ituInfoOf(
+    r
+) {
+
+    return {
+
+        administration:
+            "CHN",
+
+        administrationName:
+            "中国",
+
+        gsoPosition:
+            geoPositionText(
+                r.lon
+            ),
+
+        orbitType:
+            "GSO",
+
+        network:
+            "未照合",
+
+        downlink:
+            "未照合",
+
+        uplink:
+            "未照合"
+
+    };
+
+}
+
+
+function ituPopupOf(
+    r
+) {
+
+    const itu =
+
+        ituInfoOf(
+            r
+        );
+
+
+    return (
+
+        "<div class='itu-box'>" +
+
+
+        "<div class='itu-title'>" +
+
+        "📡 ITU情報" +
+
+        "</div>" +
+
+
+        "<div class='itu-row'>" +
+
+        "<span class='itu-label'>" +
+
+        "主管庁：" +
+
+        "</span>" +
+
+        itu.administration +
+
+        "（" +
+
+        itu.administrationName +
+
+        "）" +
+
+        "</div>" +
+
+
+        "<div class='itu-row'>" +
+
+        "<span class='itu-label'>" +
+
+        "GSO位置：" +
+
+        "</span>" +
+
+        itu.gsoPosition +
+
+        "</div>" +
+
+
+        "<div class='itu-row'>" +
+
+        "<span class='itu-label'>" +
+
+        "軌道種別：" +
+
+        "</span>" +
+
+        itu.orbitType +
+
+        "</div>" +
+
+
+        "<div class='itu-row'>" +
+
+        "<span class='itu-label'>" +
+
+        "ITU Network：" +
+
+        "</span>" +
+
+        "<span class='itu-pending'>" +
+
+        itu.network +
+
+        "</span>" +
+
+        "</div>" +
+
+
+        "<div class='itu-row'>" +
+
+        "<span class='itu-label'>" +
+
+        "Downlink：" +
+
+        "</span>" +
+
+        "<span class='itu-pending'>" +
+
+        itu.downlink +
+
+        "</span>" +
+
+        "</div>" +
+
+
+        "<div class='itu-row'>" +
+
+        "<span class='itu-label'>" +
+
+        "Uplink：" +
+
+        "</span>" +
+
+        "<span class='itu-pending'>" +
+
+        itu.uplink +
+
+        "</span>" +
+
+        "</div>" +
+
+
+        "<div class='itu-note'>" +
+
+        "※ ITU Network名は衛星名と一致するとは限らないため、" +
+
+        "衛星名・主管庁・GSO位置から照合します。" +
+
+        "</div>" +
+
+
+        "<a " +
+
+        "class='itu-button' " +
+
+        "href='" +
+
+        ITU_SPACE_EXPLORER +
+
+        "' " +
+
+        "target='_blank' " +
+
+        "rel='noopener noreferrer'>" +
+
+        "📡 ITU Space Explorerを開く" +
+
+        "</a>" +
+
+
+        "</div>"
+
+    );
+
+}
+
+
+/* =========================================================
+   LAUNCH SITE
+   ========================================================= */
+
+const LAUNCH_SITES = {
+
+    "WSC":
+        "文昌衛星発射場",
+
+    "XICLF":
+        "西昌衛星発射センター",
+
+    "JSC":
+        "酒泉衛星発射センター",
+
+    "TAISC":
+        "太原衛星発射センター",
+
+    "SCSLA":
+        "南シナ海打上げ区域",
+
+    "YSLA":
+        "黄海打上げ区域",
+
+
+    "DLS":
+        "ドンバロフスキー発射場",
+
+    "PLMSC":
+        "プレセツク宇宙基地",
+
+    "KYMSC":
+        "カプースチン・ヤール",
+
+    "VOSTO":
+        "ボストーチヌイ宇宙基地",
+
+    "SVOBO":
+        "スヴォボードヌイ宇宙基地",
+
+    "TYMSC":
+        "バイコヌール宇宙基地",
+
+
+    "SEAL":
+        "シーローンチ海上発射施設",
+
+    "SUBL":
+        "潜水艦発射",
+
+    "UNK":
+        "不明"
+
+};
+
+
+function launchSiteName(
+    code
+) {
+
+    if (
+        !code
+    ) {
+
+        return "不明";
+
+    }
+
+
+    const key =
+
+        String(
+            code
+        )
+
+        .trim()
+
+        .toUpperCase();
+
+
+    const name =
+
+        LAUNCH_SITES[
+            key
+        ];
+
+
+    if (
+        name
+    ) {
+
+        return (
+
+            name
+            +
+            "（"
+            +
+            key
+            +
+            "）"
+
+        );
+
+    }
+
+
+    return key;
+
+}
+
+
+/* =========================================================
+   CATEGORY
+   ========================================================= */
+
+function catOf(
+    r
+) {
+
+    const n =
+
+        String(
+            r.name || ""
+        )
+
+        .toUpperCase();
+
+
+    const lat =
+
+        Math.abs(
+
+            parseFloat(
+                r.lat || "0"
+            )
+
+        );
+
+
+    if (
+        lat > 3
+    ) {
+
+        return [
+
+            "#dd6b20",
+
+            "移動中・傾斜大",
+
+            "GEO付近だが南北に大きく振れている。移動中・静止化途中・傾斜軌道の可能性"
+
+        ];
+
+    }
+
+
+    if (
+
+        n.includes(
+            "TJS"
+        )
+
+        ||
+
+        n.includes(
+            "TONGXIN"
+        )
+
+    ) {
+
+        return [
+
+            "#2b6cb0",
+
+            "TJS・通信技術試験",
+
+            "中国の通信技術試験衛星系。GEO上の位置と移動を継続監視"
+
+        ];
+
+    }
+
+
+    return [
+
+        "#718096",
+
+        "未整理",
+
+        "用途未整理。公開情報または自分メモで追記"
+
+    ];
+
+}
+
+
+/* =========================================================
+   LAUNCH DATE
+   ========================================================= */
+
+function formatLaunchDate(
+    date
+) {
+
+    if (
+        !date
+    ) {
+
+        return "不明";
+
+    }
+
+
+    return date.replaceAll(
+        "-",
+        "/"
+    );
+
+}
+
+
+function launchAgeOf(
+    date
+) {
+
+    if (
+        !date
+    ) {
+
+        return "不明";
+
+    }
+
+
+    const launch =
+
+        new Date(
+
+            date
+            +
+            "T00:00:00Z"
+
+        );
+
+
+    if (
+
+        Number.isNaN(
+            launch.getTime()
+        )
+
+    ) {
+
+        return "不明";
+
+    }
+
+
+    const diff =
+
+        Date.now()
+        -
+        launch.getTime();
+
+
+    if (
+        diff < 0
+    ) {
+
+        return "未打上げ";
+
+    }
+
+
+    const days =
+
+        Math.floor(
+
+            diff
+            /
+            86400000
+
+        );
+
+
+    if (
+        days < 365
+    ) {
+
+        return (
+
+            days
+            +
+            "日"
+
+        );
+
+    }
+
+
+    const years =
+
+        Math.floor(
+
+            days
+            /
+            365.2425
+
+        );
+
+
+    const remainDays =
+
+        Math.floor(
+
+            days
+            -
+            years
+            *
+            365.2425
+
+        );
+
+
+    return (
+
+        years
+        +
+        "年 "
+        +
+        remainDays
+        +
+        "日"
+
+    );
+
+}
+
+
+/* =========================================================
+   TLE AGE
+   ========================================================= */
+
+function ageOf(
+    epochIso
+) {
+
+    const epoch =
+
+        new Date(
+            epochIso
+        );
+
+
+    if (
+
+        Number.isNaN(
+            epoch.getTime()
+        )
+
+    ) {
+
+        return "不明";
+
+    }
+
+
+    let diff =
+
+        Date.now()
+        -
+        epoch.getTime();
+
+
+    const future =
+
+        diff < 0;
+
+
+    diff =
+
+        Math.abs(
+            diff
+        );
+
+
+    const totalMinutes =
+
+        Math.floor(
+
+            diff
+            /
+            60000
+
+        );
+
+
+    const days =
+
+        Math.floor(
+
+            totalMinutes
+            /
+            1440
+
+        );
+
+
+    const hours =
+
+        Math.floor(
+
+            (
+                totalMinutes
+                %
+                1440
+            )
+            /
+            60
+
+        );
+
+
+    const minutes =
+
+        totalMinutes
+        %
+        60;
+
+
+    let text = "";
+
+
+    if (
+        days > 0
+    ) {
+
+        text +=
+
+            days
+            +
+            "日 ";
+
+    }
+
+
+    text +=
+
+        hours
+        +
+        "時間"
+        +
+        minutes
+        +
+        "分";
+
+
+    return future
+
+        ? "未来 " + text
+
+        : text;
+
+}
+
+
+/* =========================================================
+   TLE FRESHNESS
+   ========================================================= */
+
+function freshnessOf(
+    epochIso
+) {
+
+    const epoch =
+
+        new Date(
+            epochIso
+        );
+
+
+    if (
+
+        Number.isNaN(
+            epoch.getTime()
+        )
+
+    ) {
+
+        return {
+
+            color:
+                "#718096",
+
+            icon:
+                "⚪",
+
+            text:
+                "不明"
+
+        };
+
+    }
+
+
+    const ageHours =
+
+        (
+            Date.now()
+            -
+            epoch.getTime()
+        )
+
+        /
+        3600000;
+
+
+    if (
+        ageHours < 24
+    ) {
+
+        return {
+
+            color:
+                "#16a34a",
+
+            icon:
+                "🟢",
+
+            text:
+                "新鮮"
+
+        };
+
+    }
+
+
+    if (
+        ageHours < 72
+    ) {
+
+        return {
+
+            color:
+                "#ca8a04",
+
+            icon:
+                "🟡",
+
+            text:
+                "やや古い"
+
+        };
+
+    }
+
+
+    if (
+        ageHours < 168
+    ) {
+
+        return {
+
+            color:
+                "#ea580c",
+
+            icon:
+                "🟠",
+
+            text:
+                "古い"
+
+        };
+
+    }
+
+
+    return {
+
+        color:
+            "#dc2626",
+
+        icon:
+            "🔴",
+
+        text:
+            "要注意"
+
+    };
+
+}
+
+
+/* =========================================================
+   POPUP
+   ========================================================= */
+
+function popOf(
+    r
+) {
+
+    const c =
+
+        catOf(
+            r
+        );
+
+
+    const fresh =
+
+        freshnessOf(
+            r.epoch_iso
+        );
+
+
+    return (
+
+        "<b>" +
+        r.name +
+        "</b><br>" +
+
+
+        "<span style='" +
+
+        "display:inline-block;" +
+        "margin:4px 0;" +
+        "padding:2px 8px;" +
+        "border-radius:10px;" +
+
+        "background:" +
+        c[0] +
+        ";" +
+
+        "color:white;" +
+        "font-size:12px;" +
+
+        "'>" +
+
+        c[1] +
+
+        "</span><br>" +
+
+
+        "<b>NORAD ID：</b>" +
+        r.norad +
+        "<br>" +
+
+
+        "<b>緯度：</b>" +
+        r.lat +
+        "°<br>" +
+
+
+        "<b>経度：</b>" +
+        r.lon +
+        "°<br>" +
+
+
+        "<b>高度：</b>" +
+        r.alt_km +
+        " km<br>" +
+
+
+        "<hr>" +
+
+
+        "🚀 <b>打上げ日：</b>" +
+
+        formatLaunchDate(
+            r.launch_date
+        ) +
+
+        "<br>" +
+
+
+        "📍 <b>打上げ場所：</b>" +
+
+        launchSiteName(
+            r.launch_site
+        ) +
+
+        "<br>" +
+
+
+        "🛰 <b>打上げから：</b>" +
+
+        launchAgeOf(
+            r.launch_date
+        ) +
+
+        "<br>" +
+
+
+        "<hr>" +
+
+
+        "<b>TLEエポック：</b>" +
+        r.epoch_day +
+        "<br>" +
+
+
+        "<b>TLE Epoch Raw：</b>" +
+        r.epoch_raw +
+        "<br>" +
+
+
+        "<b>エポック日時：</b>" +
+        r.epoch_utc +
+        "<br>" +
+
+
+        "<b>経過時間：</b>" +
+
+        ageOf(
+            r.epoch_iso
+        ) +
+
+        "<br>" +
+
+
+        "<b>TLE鮮度：</b>" +
+
+
+        "<span style='" +
+
+        "font-weight:bold;" +
+
+        "color:" +
+        fresh.color +
+        ";" +
+
+        "'>" +
+
+
+        fresh.icon +
+        " " +
+        fresh.text +
+
+
+        "</span><br>" +
+
+
+        "<hr>" +
+
+
+        "<b>分類：</b>" +
+        c[1] +
+        "<br>" +
+
+
+        "<b>任務メモ：</b>" +
+        c[2] +
+
+
+        "<hr>" +
+
+
+        ituPopupOf(
+            r
+        )
+
+    );
+
+}
+
+
+/* =========================================================
+   MARKERS
+   ========================================================= */
+
+const satelliteMarkers =
+    [];
+
+
+data.forEach(
+
+    r => {
+
+
+        const c =
+
+            catOf(
+                r
+            );
+
+
+        const marker =
+
+            L.circleMarker(
+
+                [
+
+                    parseFloat(
+                        r.lat
+                    ),
+
+                    parseFloat(
+                        r.lon
+                    )
+
+                ],
+
+                {
+
+                    radius:
+                        8,
+
+                    color:
+                        "#1a202c",
+
+                    weight:
+                        1,
+
+                    fillColor:
+                        c[0],
+
+                    fillOpacity:
+                        0.9
+
+                }
+
+            )
+
+            .addTo(
+                map
+            )
+
+            .bindPopup(
+
+                popOf(
+                    r
+                ),
+
+                {
+
+                    maxWidth:
+                        420
+
+                }
+
+            );
+
+
+        satelliteMarkers.push(
+
+            {
+
+                data:
+                    r,
+
+                marker:
+                    marker
+
+            }
+
+        );
+
+    }
+
+);
+
+
+/* =========================================================
+   SEARCH NORMALIZE
+   ========================================================= */
+
+function normalizeSearch(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+
+    .toUpperCase()
+
+    .replace(
+
+        /[^A-Z0-9]/g,
+
+        ""
+
+    );
+
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+function searchSatellite() {
+
+    const input =
+
+        document.getElementById(
+            "satSearch"
+        );
+
+
+    const result =
+
+        document.getElementById(
+            "searchResult"
+        );
+
+
+    const query =
+
+        normalizeSearch(
+
+            input.value.trim()
+
+        );
+
+
+    if (
+        !query
+    ) {
+
+        result.textContent =
+
+            "衛星名かNORAD IDを入力してください";
+
+
+        return;
+
+    }
+
+
+    let found =
+
+        satelliteMarkers.find(
+
+            item => {
+
+
+                const name =
+
+                    normalizeSearch(
+                        item.data.name
+                    );
+
+
+                const norad =
+
+                    normalizeSearch(
+                        item.data.norad
+                    );
+
+
+                return (
+
+                    name === query
+                    ||
+                    norad === query
+
+                );
+
+            }
+
+        );
+
+
+    if (
+        !found
+    ) {
+
+        found =
+
+            satelliteMarkers.find(
+
+                item => {
+
+
+                    const name =
+
+                        normalizeSearch(
+                            item.data.name
+                        );
+
+
+                    const norad =
+
+                        normalizeSearch(
+                            item.data.norad
+                        );
+
+
+                    return (
+
+                        name.includes(
+                            query
+                        )
+
+                        ||
+
+                        norad.includes(
+                            query
+                        )
+
+                    );
+
+                }
+
+            );
+
+    }
+
+
+    if (
+        !found
+    ) {
+
+        result.textContent =
+
+            "❌ 該当する衛星がありません";
+
+
+        return;
+
+    }
+
+
+    const r =
+
+        found.data;
+
+
+    const marker =
+
+        found.marker;
+
+
+    map.setView(
+
+        [
+
+            parseFloat(
+                r.lat
+            ),
+
+            parseFloat(
+                r.lon
+            )
+
+        ],
+
+        5,
+
+        {
+
+            animate:
+                true
+
+        }
+
+    );
+
+
+    marker.openPopup();
+
+
+    marker.setRadius(
+        14
+    );
+
+
+    setTimeout(
+
+        function() {
+
+            marker.setRadius(
+                8
+            );
+
+        },
+
+        2500
+
+    );
+
+
+    result.textContent =
+
+        "✅ "
+        +
+        r.name
+        +
+        " / NORAD "
+        +
+        r.norad;
+
+}
+
+
+/* =========================================================
+   SEARCH BUTTON
+   ========================================================= */
+
+document
+    .getElementById(
+        "searchButton"
+    )
+    .addEventListener(
+
+        "click",
+
+        searchSatellite
+
+    );
+
+
+/* =========================================================
+   ENTER
+   ========================================================= */
+
+document
+    .getElementById(
+        "satSearch"
+    )
+    .addEventListener(
+
+        "keydown",
+
+        function(
+            event
+        ) {
+
+            if (
+                event.key ===
+                "Enter"
+            ) {
+
+                event.preventDefault();
+
+                searchSatellite();
+
+            }
+
+        }
+
+    );
+
+
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
+const legend =
+
+    L.control(
+
+        {
+
+            position:
+                "bottomleft"
+
+        }
+
+    );
+
+
+legend.onAdd =
+
+    function() {
+
+
+        const div =
+
+            L.DomUtil.create(
+
+                "div",
+
+                "info legend"
+
+            );
+
+
+        div.id =
+
+            "satLegend";
+
+
+        div.style.background =
+
+            "white";
+
+
+        div.style.padding =
+
+            "10px";
+
+
+        div.style.borderRadius =
+
+            "8px";
+
+
+        div.style.boxShadow =
+
+            "0 1px 5px rgba(0,0,0,0.3)";
+
+
+        div.style.fontSize =
+
+            "13px";
+
+
+        div.innerHTML =
+
+            "<b>衛星カテゴリ</b><br>" +
+
+            "<div>🔵 TJS・通信技術試験</div>" +
+
+            "<div>🟠 移動中・傾斜大</div>" +
+
+            "<div>⚫ 未整理</div>" +
+
+            "<hr style='margin:6px 0'>" +
+
+            "<div>📡 ITU照合対応</div>";
+
+
+        return div;
+
+    };
+
+
+legend.addTo(
+    map
+);
+
+
+/* =========================================================
+   POPUP OPEN
+   ========================================================= */
+
+map.on(
+
+    "popupopen",
+
+    function() {
+
+
+        const legendBox =
+
+            document.getElementById(
+                "satLegend"
+            );
+
+
+        if (
+            legendBox
+        ) {
+
+            legendBox.style.display =
+
+                "none";
+
+        }
+
+    }
+
+);
+
+
+/* =========================================================
+   POPUP CLOSE
+   ========================================================= */
+
+map.on(
+
+    "popupclose",
+
+    function() {
+
+
+        const legendBox =
+
+            document.getElementById(
+                "satLegend"
+            );
+
+
+        if (
+            legendBox
+        ) {
+
+            legendBox.style.display =
+
+                "block";
+
+        }
+
+    }
+
+);
+
+
+</script>
+
+</body>
+</html>
