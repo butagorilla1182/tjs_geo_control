@@ -729,7 +729,10 @@ data.forEach(r => {
         .bindPopup(
             popOf(r),
             {
-                maxWidth: 420
+                maxWidth: 420,
+                autoPan: true,
+                autoPanPaddingTopLeft: [20, 20],
+                autoPanPaddingBottomRight: [20, 20]
             }
         );
 
@@ -882,7 +885,9 @@ function searchSatellite() {
         5,
 
         {
-            animate: true
+            /* アニメーションしながらだとポップアップの自動スクロール(autoPan)が効かず、
+               上が地図からはみ出していたため、アニメーションなしで移動する */
+            animate: false
         }
     );
 
